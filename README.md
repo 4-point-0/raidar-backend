@@ -1,4 +1,4 @@
-# TEKUNO NEAR REST API
+# RAIDAR REST API
 
 <p align="middle">
   <a href="http://nestjs.com/" target="blank"><img src="./public/tech-stack/nestjs.png" width="200" alt="Nest Logo" /></a>
