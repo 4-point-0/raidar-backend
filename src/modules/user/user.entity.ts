@@ -1,0 +1,59 @@
+import { Provider, Role } from '../../common/enums/enum';
+import {
+  Entity,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
+  OneToMany,
+} from 'typeorm';
+import { Song } from '../song/song.entity';
+import { Listing } from '../listing/listing.entity';
+
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  public id: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  public email: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  public first_name: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  public last_name: string;
+
+  @Column({
+    type: 'enum',
+    enum: [Role.User, Role.Artist],
+    default: Role.User,
+  })
+  roles: Role[];
+
+  @Column({
+    type: 'enum',
+    enum: [Provider.Google],
+    default: Provider.Google,
+    nullable: true,
+  })
+  provider?: Provider;
+
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
+  public provider_id?: string;
+
+  @OneToMany(() => Song, (song) => song.user)
+  songs: Song[];
+
+  @OneToMany(() => Listing, (listing) => listing.seller)
+  listings_sold: Listing[];
+
+  @OneToMany(() => Listing, (listing) => listing.buyer)
+  listings_purchased: Listing[];
+
+  @CreateDateColumn({ type: 'timestamp', nullable: false })
+  public created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', nullable: false })
+  public updated_at: Date;
+}

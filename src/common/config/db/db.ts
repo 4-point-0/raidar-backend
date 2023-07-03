@@ -20,5 +20,5 @@ export const data_source_config = {
   synchronize: false,
   migrationsRun: false,
   migrations: ['dist/**/migrations/*{ .ts,.js}'],
-  migrationsTableName: 'migrations',
+  migrationsTableName: '_typeorm_migrations',
 };
