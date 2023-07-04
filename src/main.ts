@@ -2,7 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './modules/app/app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
+import { swaggerDocConfig } from './common/config/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,14 +19,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  const swaggerConfig = new DocumentBuilder()
-    .addBearerAuth()
-    .setTitle('Raidar API')
-    .setDescription('API for raidar project')
-    .setVersion('1.0')
-    .build();
-
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig, {
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerDocConfig, {
     include: [],
   });
 
