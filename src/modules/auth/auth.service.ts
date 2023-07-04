@@ -76,7 +76,14 @@ export class AuthService {
       }
 
       const response = {
-        token: this.generateJwt(user),
+        token: this.generateJwt({
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          provider: user.provider,
+          provider_id: user.provider_id,
+          roles: user.roles,
+        }),
       };
 
       return new ServiceResult<JwtTokenDto>(response);
