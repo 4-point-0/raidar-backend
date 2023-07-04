@@ -26,8 +26,9 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: [Role.User, Role.Artist],
-    default: Role.User,
+    enum: Role,
+    default: [Role.User],
+    array: true,
   })
   roles: Role[];
 
@@ -41,6 +42,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   public provider_id?: string;
+
+  @Column({ type: 'varchar', length: 512, unique: true, nullable: true })
+  public wallet_address?: string;
 
   @OneToMany(() => Song, (song) => song.user)
   songs: Song[];
