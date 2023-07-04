@@ -29,37 +29,37 @@ export class UserService {
     private readonly httpService: HttpService,
   ) {}
 
-  //   public async addWallet(dto: AddWalletDto): Promise<ServiceResult<boolean>> {
-  //     try {
-  //       const isValid = await this.nearValidate(
-  //         dto.username,
-  //         dto.signedJsonString,
-  //       );
+  public async addWallet(dto: AddWalletDto): Promise<ServiceResult<boolean>> {
+    try {
+      const isValid = await this.nearValidate(
+        dto.username,
+        dto.signedJsonString,
+      );
 
-  //       if (!isValid) {
-  //         return new BadRequest('Not valid signature!');
-  //       }
+      if (!isValid) {
+        return new BadRequest('Not valid signature!');
+      }
 
-  //       const user = await this.userRepository.findOneBy({ id: dto.id });
+      const user = await this.userRepository.findOneBy({ id: dto.id });
 
-  //       if (!user) {
-  //         return new NotFound('User not found!');
-  //       }
+      if (!user) {
+        return new NotFound('User not found!');
+      }
 
-  //       if (dto.wallet_address === user.wallet_address) {
-  //         return new BadRequest('Wallet already added!');
-  //       }
+      if (dto.wallet_address === user.wallet_address) {
+        return new BadRequest('Wallet already added!');
+      }
 
-  //       user.wallet_address = dto.wallet_address;
+      user.wallet_address = dto.wallet_address;
 
-  //       await this.userRepository.save(user);
+      await this.userRepository.save(user);
 
-  //       return new ServiceResult<boolean>(true);
-  //     } catch (error) {
-  //       this.logger.error('UserService - addWallet', error);
-  //       return new ServerError<boolean>(`Can't add wallet`);
-  //     }
-  //   }
+      return new ServiceResult<boolean>(true);
+    } catch (error) {
+      this.logger.error('UserService - addWallet', error);
+      return new ServerError<boolean>(`Can't add wallet`);
+    }
+  }
 
   private async nearValidate(
     username: string,

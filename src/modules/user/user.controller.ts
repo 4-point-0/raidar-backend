@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Post,
-  Req,
-  UseFilters,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseFilters } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { HttpExceptionFilter } from '../../helpers/filters/http-exception.filter';
@@ -21,11 +14,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('add-wallet')
-  @Auth(Role.User)
+  @Auth(Role.User, Role.Artist)
   @UseFilters(new HttpExceptionFilter())
   @CommonApiResponse(Boolean)
   @HttpCode(200)
-  async addWallet(@Req() request, @Body() dto: AddWalletDto) {
-    // return handle(await this.userService.addWallet(dto));
+  async addWallet(@Body() dto: AddWalletDto) {
+    return handle(await this.userService.addWallet(dto));
   }
 }
