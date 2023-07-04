@@ -39,6 +39,9 @@ export class UserProfileDto {
   @ApiProperty()
   updated_at: Date;
 
+  @ApiProperty()
+  wallet_address: string;
+
   public static fromEntityUser(entity: User) {
     return this.from({
       id: entity.id,
@@ -50,6 +53,7 @@ export class UserProfileDto {
       provider_id: entity.provider_id,
       created_at: entity.created_at,
       updated_at: entity.updated_at,
+      wallet_address: entity.wallet_address,
     });
   }
 
@@ -64,6 +68,7 @@ export class UserProfileDto {
     user.provider_id = dto.provider_id;
     user.created_at = dto.created_at;
     user.updated_at = dto.updated_at;
+    user.wallet_address = dto.wallet_address;
 
     return user;
   }
