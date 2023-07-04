@@ -11,6 +11,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PassportJwtDuplicationFixInterceptor } from '../auth/interceptors/passport-fix.interceptor';
 import { configuration } from '../../common/config/configuration';
 import { AuthModule } from '../auth/auth.module';
+import { UserModule } from '../user/user.module';
 
 dotenv.config({
   path: existsSync(`.env.${process.env.MODE}`)
@@ -28,6 +29,7 @@ dotenv.config({
     }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [
