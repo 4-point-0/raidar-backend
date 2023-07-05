@@ -22,6 +22,13 @@ import { Auth } from '../../helpers/decorators/auth.decorator';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Auth(Role.User, Role.Artist)
+  @Get('me')
+  @CommonApiResponse(UserProfileDto)
+  findMe(@Req() request) {
+    return UserProfileDto.fromEntityUser(request.user);
+  }
+
   @Post('add-wallet')
   @Auth(Role.User, Role.Artist)
   @UseFilters(new HttpExceptionFilter())
@@ -29,12 +36,5 @@ export class UserController {
   @HttpCode(200)
   async addWallet(@Body() dto: AddWalletDto) {
     return handle(await this.userService.addWallet(dto));
-  }
-
-  @Auth(Role.User, Role.Artist)
-  @Get('me')
-  @CommonApiResponse(UserProfileDto)
-  findMe(@Req() request) {
-    return UserProfileDto.fromEntityUser(request.user);
   }
 }
