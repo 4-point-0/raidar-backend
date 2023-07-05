@@ -1,4 +1,15 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  UseFilters,
+} from '@nestjs/common';
+import { HttpExceptionFilter } from '../../helpers/filters/http-exception.filter';
+import { AddWalletDto } from './dto/add-wallet.dto';
+import { handle } from '../../helpers/response/handle';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CommonApiResponse } from '../../helpers/decorators/api-response-swagger.decorator';
@@ -15,7 +26,15 @@ export class UserController {
   @Get('me')
   @CommonApiResponse(UserProfileDto)
   findMe(@Req() request) {
-    console.log(request.user);
     return UserProfileDto.fromEntityUser(request.user);
+  }
+
+  @Post('add-wallet')
+  @Auth(Role.User, Role.Artist)
+  @UseFilters(new HttpExceptionFilter())
+  @CommonApiResponse(Boolean)
+  @HttpCode(200)
+  async addWallet(@Body() dto: AddWalletDto) {
+    return handle(await this.userService.addWallet(dto));
   }
 }
