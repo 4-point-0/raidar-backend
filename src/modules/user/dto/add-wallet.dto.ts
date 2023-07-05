@@ -24,13 +24,5 @@ export class AddWalletDto {
     type: String,
     required: true,
   })
-  username: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    type: String,
-    required: true,
-  })
   signedJsonString: string;
 }

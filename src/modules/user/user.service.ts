@@ -32,7 +32,7 @@ export class UserService {
   public async addWallet(dto: AddWalletDto): Promise<ServiceResult<boolean>> {
     try {
       const isValid = await this.nearValidate(
-        dto.username,
+        dto.wallet_address,
         dto.signedJsonString,
       );
 
@@ -46,7 +46,7 @@ export class UserService {
         return new NotFound('User not found!');
       }
 
-      if (dto.wallet_address === user.wallet_address) {
+      if (user.wallet_address) {
         return new BadRequest('Wallet already added!');
       }
 
