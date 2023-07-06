@@ -2,8 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from '../../user/dto/user.dto';
 import { Listing } from '../listing.entity';
 import { SongDto } from '../../../modules/song/dto/song.dto';
+import { BaseDto } from '../../../common/dto/base.dto';
 
-export class ListingDto implements Readonly<ListingDto> {
+export class ListingDto extends BaseDto implements Readonly<ListingDto> {
   @ApiProperty({
     type: String,
   })
@@ -33,26 +34,6 @@ export class ListingDto implements Readonly<ListingDto> {
     type: Number,
   })
   price: number;
-
-  @ApiProperty({
-    type: Date,
-  })
-  created_at: Date;
-
-  @ApiProperty({
-    type: Date,
-  })
-  updated_at: Date;
-
-  @ApiProperty({
-    type: String,
-  })
-  created_by_id: string;
-
-  @ApiProperty({
-    type: String,
-  })
-  updated_by_id: string;
 
   public static from(dto: Partial<ListingDto>) {
     const listing = new ListingDto();

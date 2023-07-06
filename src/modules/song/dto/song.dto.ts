@@ -1,8 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Song } from '../song.entity';
-import { Listing } from 'src/modules/listing/listing.entity';
+import { Listing } from '../../../modules/listing/listing.entity';
+import { FileDto } from '../../../modules/file/dto/file.dto';
+import { BaseDto } from '../../../common/dto/base.dto';
+import { AlbumDto } from '../../../modules/album/dto/album.dto';
 
-export class SongDto implements Readonly<SongDto> {
+export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
     type: String,
   })
@@ -13,7 +16,10 @@ export class SongDto implements Readonly<SongDto> {
   })
   user_id: string;
 
-  // add album dto
+  @ApiProperty({
+    type: AlbumDto,
+  })
+  album: AlbumDto;
 
   @ApiProperty({
     type: String,
@@ -73,7 +79,11 @@ export class SongDto implements Readonly<SongDto> {
   })
   musical_key: string;
 
-  //add music file dto
+  @ApiProperty({
+    type: FileDto,
+    nullable: false,
+  })
+  music: FileDto;
 
   @ApiProperty({
     type: Date,
@@ -90,7 +100,11 @@ export class SongDto implements Readonly<SongDto> {
   })
   recording_location: string;
 
-  //add art file dto
+  @ApiProperty({
+    type: FileDto,
+    nullable: false,
+  })
+  art: FileDto;
 
   @ApiProperty({
     type: String,
@@ -121,6 +135,9 @@ export class SongDto implements Readonly<SongDto> {
     song.recording_country = dto.recording_country;
     song.pka = dto.pka;
     song.listing_id = dto.listing_id;
+    song.music = dto.music;
+    song.art = dto.art;
+    song.album = dto.album;
 
     return song;
   }
@@ -143,6 +160,9 @@ export class SongDto implements Readonly<SongDto> {
       recording_location: entity.recording_location,
       recording_country: entity.recording_country,
       pka: entity.pka,
+      music: FileDto.fromEntity(entity.music),
+      art: FileDto.fromEntity(entity.art),
+      album: entity.album ? AlbumDto.fromEntity(entity.album) : null,
       listing_id: entity.listings.sort((a: Listing, b: Listing) => {
         return a.created_at.getTime() - b.created_at.getTime();
       })[0].id,
