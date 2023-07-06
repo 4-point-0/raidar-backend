@@ -6,6 +6,7 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerDocConfig } from './common/config/swagger';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { SongModule } from './modules/song/song.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,7 +23,7 @@ async function bootstrap() {
   });
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerDocConfig, {
-    include: [AuthModule, UserModule],
+    include: [AuthModule, UserModule, SongModule],
   });
 
   SwaggerModule.setup('swagger', app, swaggerDocument);

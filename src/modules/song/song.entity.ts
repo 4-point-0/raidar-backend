@@ -64,15 +64,6 @@ export class Song extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   public musical_key: string;
 
-  @Column({
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    nullable: false,
-  })
-  price: number;
-
   @OneToOne(() => File)
   @JoinColumn([
     {
