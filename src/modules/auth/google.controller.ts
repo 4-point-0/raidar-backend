@@ -24,6 +24,6 @@ export class GoogleController {
 
   @Post('auth')
   async authenticate(@Body() dto: GoogleVerificationDto) {
-    return handle(await this.authService.googleAuth(dto.token, dto.role));
+    return handle(await this.authService.googleAuth(dto.token));
   }
 }
