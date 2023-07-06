@@ -6,6 +6,7 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerDocConfig } from './common/config/swagger';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { SongModule } from './modules/song/song.module';
 import { AlbumModule } from './modules/album/album.module';
 
 async function bootstrap() {
@@ -23,7 +24,7 @@ async function bootstrap() {
   });
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerDocConfig, {
-    include: [AuthModule, UserModule, AlbumModule],
+    include: [AuthModule, UserModule, AlbumModule, SongModule],
   });
 
   SwaggerModule.setup('swagger', app, swaggerDocument);

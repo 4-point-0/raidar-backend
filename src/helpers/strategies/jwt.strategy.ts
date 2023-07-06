@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../modules/user/user.entity';
 import { Repository } from 'typeorm';
+import { CurrentUser } from '../../common/models/current-user';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -24,6 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.usersRepository.findOneBy({
       email: payload.email,
     });
+    CurrentUser.id = user.id;
     return user;
   }
 }

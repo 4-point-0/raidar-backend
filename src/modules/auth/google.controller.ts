@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { GoogleOauthGuard } from '../../helpers/guards/google-auth.guard';
-import GoogleVerificationDto from './dto/google-verification.dto';
+import GoogleLoginDto from './dto/google-login.dto';
 import { handle } from '../../helpers/response/handle';
 import { AuthService } from './auth.service';
 
@@ -23,7 +23,7 @@ export class GoogleController {
   }
 
   @Post('auth')
-  async authenticate(@Body() dto: GoogleVerificationDto) {
+  async authenticate(@Body() dto: GoogleLoginDto) {
     return handle(await this.authService.googleAuth(dto.token));
   }
 }
