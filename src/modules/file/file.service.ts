@@ -1,26 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ServiceResult } from '../../helpers/response/result';
-import { File } from '@prisma/client';
 import {
   BadRequest,
   NotFound,
   ServerError,
   Unauthorized,
 } from '../../helpers/response/errors';
-import { PrismaService } from '../prisma/prisma.service';
 import { FileDto } from './dto/file.dto';
 import { AwsStorageService } from './aws-storage.service';
-import { AzureStorageService } from './azure-storage.service';
 
 @Injectable()
 export class FileService {
   private readonly logger = new Logger(FileService.name);
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly awsStorageService: AwsStorageService,
-    private readonly azureStorageService: AzureStorageService,
   ) {}
 
   async uploadFile(
@@ -49,47 +44,26 @@ export class FileService {
       }
 
       let file: File;
-      if (this.configService.get('storage') === 'azure') {
-        const response = await this.azureStorageService.uploadFile(dataBuffer);
 
-        if (response instanceof ServerError) {
-          return new ServerError<FileDto>(response.error.message);
-        }
-
-        file = await this.prismaService.file.create({
-          data: {
-            name: fileName,
-            url: response.url,
-            key: response.key,
-            mime_type: mimetype,
-            created_by_id: user_id,
-            updated_by_id: user_id,
-            tags: tags ? tags : undefined,
-          },
-        });
+      const response = await this.awsStorageService.uploadFile(
+        dataBuffer,
+        mimetype,
+      );
+      if (response instanceof ServerError) {
+        return new ServerError<FileDto>(response.error.message);
       }
 
-      if (this.configService.get('storage') === 'aws') {
-        const response = await this.awsStorageService.uploadFile(
-          dataBuffer,
-          mimetype,
-        );
-        if (response instanceof ServerError) {
-          return new ServerError<FileDto>(response.error.message);
-        }
-
-        file = await this.prismaService.file.create({
-          data: {
-            name: fileName,
-            url: response.Location,
-            key: response.Key,
-            mime_type: mimetype,
-            created_by_id: user_id,
-            updated_by_id: user_id,
-            tags: tags ? tags : undefined,
-          },
-        });
-      }
+      file = await this.prismaService.file.create({
+        data: {
+          name: fileName,
+          url: response.Location,
+          key: response.Key,
+          mime_type: mimetype,
+          created_by_id: user_id,
+          updated_by_id: user_id,
+          tags: tags ? tags : undefined,
+        },
+      });
 
       return new ServiceResult<FileDto>(FileDto.fromEntity(file));
     } catch (error) {
@@ -144,27 +118,14 @@ export class FileService {
         }
       }
 
-      if (this.configService.get('storage') === 'azure') {
-        const response = await this.azureStorageService.putFile(
-          file.key,
-          dataBuffer,
-        );
+      const response = await this.awsStorageService.putFile(
+        dataBuffer,
+        file.key,
+        mimetype,
+      );
 
-        if (response instanceof ServerError) {
-          return new ServerError<FileDto>(response.error.message);
-        }
-      }
-
-      if (this.configService.get('storage') === 'aws') {
-        const response = await this.awsStorageService.putFile(
-          dataBuffer,
-          file.key,
-          mimetype,
-        );
-
-        if (response instanceof ServerError) {
-          return new ServerError<FileDto>(response.error.message);
-        }
+      if (response instanceof ServerError) {
+        return new ServerError<FileDto>(response.error.message);
       }
 
       file.name = fileName;
@@ -235,20 +196,11 @@ export class FileService {
         }
       }
 
-      if (this.configService.get('storage') === 'azure') {
-        const response = await this.azureStorageService.removefile(file.key);
-
-        if (response instanceof ServerError) {
-          return new ServerError<string>(response.error.message);
-        }
+      const response = await this.awsStorageService.removeFile(file.key);
+      if (response instanceof ServerError) {
+        return new ServerError<string>(response.error.message);
       }
 
-      if (this.configService.get('storage') === 'aws') {
-        const response = await this.awsStorageService.removeFile(file.key);
-        if (response instanceof ServerError) {
-          return new ServerError<string>(response.error.message);
-        }
-      }
       const fileDeleated = await this.prismaService.file.delete({
         where: {
           id: file.id,
@@ -296,41 +248,22 @@ export class FileService {
         return new Unauthorized<boolean>('Not authorized to remove files');
       }
 
-      if (this.configService.get('storage') === 'azure') {
-        const keys = files.map((file) => file.key);
-        const response = await this.azureStorageService.removeFiles(keys);
-        if (response instanceof ServerError) {
-          return new ServerError<boolean>(response.error.message);
-        }
-
-        await this.prismaService.file.deleteMany({
-          where: {
-            id: {
-              in: fileIds,
-            },
-          },
-        });
-        return new ServiceResult<boolean>(true);
+      const awsKeys = files.map((file) => {
+        return { Key: file.key };
+      });
+      const response = await this.awsStorageService.removeFiles(awsKeys);
+      if (response instanceof ServerError) {
+        return new ServerError<boolean>(response.error.message);
       }
 
-      if (this.configService.get('storage') === 'aws') {
-        const awsKeys = files.map((file) => {
-          return { Key: file.key };
-        });
-        const response = await this.awsStorageService.removeFiles(awsKeys);
-        if (response instanceof ServerError) {
-          return new ServerError<boolean>(response.error.message);
-        }
-
-        await this.prismaService.file.deleteMany({
-          where: {
-            id: {
-              in: fileIds,
-            },
+      await this.prismaService.file.deleteMany({
+        where: {
+          id: {
+            in: fileIds,
           },
-        });
-        return new ServiceResult<boolean>(true);
-      }
+        },
+      });
+      return new ServiceResult<boolean>(true);
     }
     return new ServiceResult<boolean>(false);
   }
