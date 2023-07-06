@@ -12,6 +12,7 @@ import { PassportJwtDuplicationFixInterceptor } from '../auth/interceptors/passp
 import { configuration } from '../../common/config/configuration';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
+import { AlbumModule } from '../album/album.module';
 
 dotenv.config({
   path: existsSync(`.env.${process.env.MODE}`)
@@ -30,6 +31,7 @@ dotenv.config({
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     AuthModule,
     UserModule,
+    AlbumModule,
   ],
   controllers: [AppController],
   providers: [
