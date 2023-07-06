@@ -23,5 +23,5 @@ export class CreateAlbumDto {
     type: String,
     required: true,
   })
-  public imageId: string;
+  public image_id: string;
 }

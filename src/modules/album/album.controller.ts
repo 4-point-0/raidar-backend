@@ -23,18 +23,14 @@ import { Role } from '../../common/enums/enum';
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
-  @Post('create')
+  @Post()
   @Auth(Role.Artist)
   @UseFilters(new HttpExceptionFilter())
   @CommonApiResponse(AlbumDto)
   @HttpCode(200)
   async createAlbum(@Body() dto: CreateAlbumDto, @Req() request) {
     return handle(
-      await this.albumService.create(
-        dto,
-        request.user.id,
-        request.user.roles[0],
-      ),
+      await this.albumService.create(dto, request.user.id, request.user.roles),
     );
   }
 

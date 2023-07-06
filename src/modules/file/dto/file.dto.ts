@@ -30,7 +30,7 @@ export class FileDto {
     type: String,
     required: true,
   })
-  mimeType: string;
+  mime_type: string;
 
   static fromEntity(file: File): FileDto {
     const fileDto = new FileDto();
@@ -38,7 +38,7 @@ export class FileDto {
     fileDto.name = file.name;
     fileDto.url = file.url;
     fileDto.key = file.key;
-    fileDto.mimeType = file.mime_type;
+    fileDto.mime_type = file.mime_type;
     return fileDto;
   }
 }

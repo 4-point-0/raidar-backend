@@ -6,6 +6,7 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { ServiceResult } from 'src/helpers/response/result';
 import {
   BadRequest,
+  Forbidden,
   NotFound,
   ServerError,
 } from '../../helpers/response/errors';
@@ -27,11 +28,11 @@ export class AlbumService {
   async create(
     dto: CreateAlbumDto,
     creatorId: string,
-    role: Role,
+    roles: Role[],
   ): Promise<ServiceResult<AlbumDto>> {
     try {
-      if (!role.includes(Role.Artist)) {
-        return new BadRequest<AlbumDto>(
+      if (!roles.includes(Role.Artist)) {
+        return new Forbidden<AlbumDto>(
           `You don't have permission for this operation!`,
         );
       }
@@ -39,7 +40,7 @@ export class AlbumService {
       album.title = dto.title;
       album.pka = dto.pka;
 
-      const image = await this.fileRepository.findOneBy({ id: dto.imageId });
+      const image = await this.fileRepository.findOneBy({ id: dto.image_id });
 
       if (!image) {
         return new BadRequest('Image not found!');
