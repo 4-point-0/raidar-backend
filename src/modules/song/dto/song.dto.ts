@@ -4,6 +4,7 @@ import { Listing } from '../../../modules/listing/listing.entity';
 import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 import { AlbumDto } from '../../../modules/album/dto/album.dto';
+import { ListingDto } from '../../../modules/listing/dto/listing.dto';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
@@ -112,9 +113,9 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   pka: string;
 
   @ApiProperty({
-    type: String,
+    type: ListingDto,
   })
-  listing_id: string;
+  last_listing: ListingDto;
 
   public static from(dto: Partial<SongDto>) {
     const song = new SongDto();
@@ -134,7 +135,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     song.recording_location = dto.recording_location;
     song.recording_country = dto.recording_country;
     song.pka = dto.pka;
-    song.listing_id = dto.listing_id;
+    song.last_listing = dto.last_listing;
     song.music = dto.music;
     song.art = dto.art;
     song.album = dto.album;
@@ -163,9 +164,11 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
       album: entity.album ? AlbumDto.fromEntity(entity.album) : null,
-      listing_id: entity.listings.sort((a: Listing, b: Listing) => {
-        return a.created_at.getTime() - b.created_at.getTime();
-      })[0].id,
+      last_listing: ListingDto.fromEntity(
+        entity.listings.sort((a: Listing, b: Listing) => {
+          return a.created_at.getTime() - b.created_at.getTime();
+        })[0],
+      ),
     });
   }
 }

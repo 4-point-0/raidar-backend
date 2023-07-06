@@ -18,6 +18,8 @@ import { createSongMapper } from './mappers/song.mappers';
 import { Listing } from '../listing/listing.entity';
 import { createListingMapper } from '../listing/mappers/listing.mappers';
 import { Role } from '../../common/enums/enum';
+import { validate } from 'uuid';
+import { findOneSong } from './queries/song.queries';
 
 @Injectable()
 export class SongService {
@@ -90,15 +92,37 @@ export class SongService {
 
       await this.listingRepository.save(listing);
 
-      const song = await this.songRepository.findOne({
-        where: { id: new_song.id },
-        relations: ['user', 'album', 'music', 'art', 'listings'],
-      });
+      const song = await this.songRepository.findOne(findOneSong(new_song.id));
 
       return new ServiceResult<SongDto>(SongDto.fromEntity(song));
     } catch (error) {
       this.logger.error('SongService - createSong', error);
       return new ServerError<SongDto>(`Can't create song`);
+    }
+  }
+
+  async findOne(id: string, roles: Role[]): Promise<ServiceResult<SongDto>> {
+    try {
+      if (![Role.Artist, Role.User].some((r) => roles.includes(r))) {
+        return new BadRequest<SongDto>(
+          `You don't have permission for this operation!`,
+        );
+      }
+
+      if (!validate(id)) {
+        return new NotFound<SongDto>(`Song not found!`);
+      }
+
+      const song = await this.songRepository.findOne(findOneSong(id));
+
+      if (!song) {
+        return new NotFound<SongDto>(`Song not found!`);
+      }
+
+      return new ServiceResult<SongDto>(SongDto.fromEntity(song));
+    } catch (error) {
+      this.logger.error('SongService - findOneSong', error);
+      return new ServerError<SongDto>(`Can't get song`);
     }
   }
 }

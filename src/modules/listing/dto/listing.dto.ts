@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from '../../user/dto/user.dto';
 import { Listing } from '../listing.entity';
-import { SongDto } from '../../../modules/song/dto/song.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 
 export class ListingDto extends BaseDto implements Readonly<ListingDto> {
@@ -9,11 +8,6 @@ export class ListingDto extends BaseDto implements Readonly<ListingDto> {
     type: String,
   })
   id: string;
-
-  @ApiProperty({
-    type: UserDto,
-  })
-  song: SongDto;
 
   @ApiProperty({
     type: UserDto,
@@ -52,9 +46,8 @@ export class ListingDto extends BaseDto implements Readonly<ListingDto> {
   public static fromEntity(entity: Listing) {
     return this.from({
       id: entity.id,
-      song: SongDto.fromEntity(entity.song),
       seller: UserDto.fromEntity(entity.seller),
-      buyer: UserDto.fromEntity(entity.buyer),
+      buyer: entity.buyer ? UserDto.fromEntity(entity.buyer) : null,
       tx_hash: entity.tx_hash,
       price: entity.price,
       created_at: entity.created_at,

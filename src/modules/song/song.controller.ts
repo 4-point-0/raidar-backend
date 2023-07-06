@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
+  Param,
   Post,
   Req,
   UseFilters,
@@ -31,5 +33,13 @@ export class SongController {
     dto.user_id = request.user.id;
     dto.roles = request.user.roles;
     return handle(await this.songService.createSong(dto));
+  }
+
+  @Get(':id')
+  @Auth(Role.Artist, Role.User)
+  @UseFilters(new HttpExceptionFilter())
+  @CommonApiResponse(SongDto)
+  async findOne(@Req() request: AuthRequest, @Param('id') id: string) {
+    return handle(await this.songService.findOne(id, request.user.roles));
   }
 }
