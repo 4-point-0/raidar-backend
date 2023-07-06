@@ -30,10 +30,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async googleAuth(
-    token: string,
-    role?: Role,
-  ): Promise<ServiceResult<JwtTokenDto>> {
+  async googleAuth(token: string): Promise<ServiceResult<JwtTokenDto>> {
     try {
       if (!token) {
         return new Forbidden<JwtTokenDto>(`Not valid token!`);
