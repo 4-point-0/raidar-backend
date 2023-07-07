@@ -5,6 +5,7 @@ import {
   Column,
   OneToOne,
   OneToMany,
+  Unique,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
@@ -12,6 +13,7 @@ import { File } from '../file/file.entity';
 import { BaseEntity } from '../../common/models/base.entity';
 import { Listing } from '../listing/listing.entity';
 
+@Unique(['music', 'art'])
 @Entity()
 export class Song extends BaseEntity {
   @ManyToOne(() => User, (user) => user.songs)

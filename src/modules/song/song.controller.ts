@@ -5,6 +5,7 @@ import {
   HttpCode,
   Param,
   Post,
+  Query,
   Req,
   UseFilters,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import { AuthRequest } from '../../common/types/auth-request.type';
 import { handle } from '../../helpers/response/handle';
 import { CreateSongDto } from './dto/create-song.dto';
 import { SongDto } from './dto/song.dto';
+import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-response';
+import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 
 @ApiTags('song')
 @Controller('song')
@@ -41,5 +44,22 @@ export class SongController {
   @CommonApiResponse(SongDto)
   async findOne(@Req() request: AuthRequest, @Param('id') id: string) {
     return handle(await this.songService.findOne(id, request.user.roles));
+  }
+
+  @Get('artist/songs')
+  @Auth(Role.Artist)
+  @UseFilters(new HttpExceptionFilter())
+  @ApiPaginatedResponse(SongDto)
+  async findAllArtistSongs(
+    @Req() request: AuthRequest,
+    @Query() query: ArtistSongsFilterDto,
+  ) {
+    return handle(
+      await this.songService.findAllArtistSongs(
+        request.user.id,
+        request.user.roles,
+        query,
+      ),
+    );
   }
 }
