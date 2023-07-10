@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Song } from './song.entity';
 import { CreateSongDto } from './dto/create-song.dto';
 import { ServiceResult } from '../../helpers/response/result';
@@ -19,7 +19,11 @@ import { Listing } from '../listing/listing.entity';
 import { createListingMapper } from '../listing/mappers/listing.mappers';
 import { Role } from '../../common/enums/enum';
 import { validate } from 'uuid';
-import { findAllSongsArtist, findOneSong } from './queries/song.queries';
+import {
+  findAllArtistSongs,
+  findAllUserSongs,
+  findOneSong,
+} from './queries/song.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 
@@ -145,7 +149,7 @@ export class SongService {
       const title = query.title || '';
 
       const [result, total] = await this.songRepository.findAndCount(
-        findAllSongsArtist(title, user_id, take, skip),
+        findAllArtistSongs(title, user_id, take, skip),
       );
 
       return new ServiceResult<PaginatedDto<SongDto>>(
@@ -154,6 +158,36 @@ export class SongService {
     } catch (error) {
       this.logger.error('SongService - findAllArtistSongs', error);
       return new ServerError<PaginatedDto<SongDto>>(`Can't get artist songs`);
+    }
+  }
+
+  async findAllUserSongs(
+    user_id: string,
+    roles: Role[],
+    query: ArtistSongsFilterDto,
+  ): Promise<ServiceResult<PaginatedDto<SongDto>>> {
+    try {
+      if (!roles.includes(Role.User)) {
+        return new BadRequest<PaginatedDto<SongDto>>(
+          `You don't have permission for this operation!`,
+        );
+      }
+
+      const take = query.take || undefined;
+      const skip = query.skip || 0;
+      const title = query.title || '';
+
+      const [result, total] = await this.songRepository.findAndCount(
+        findAllUserSongs(title, user_id, take, skip),
+      );
+
+      return new ServiceResult<PaginatedDto<SongDto>>(
+        mapPaginatedSongsDto(result, total, take, skip),
+      );
+    } catch (error) {
+      this.logger.error('SongService - findAllUserSongs', error);
+      console.log(error);
+      return new ServerError<PaginatedDto<SongDto>>(`Can't get user songs`);
     }
   }
 }

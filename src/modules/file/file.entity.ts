@@ -14,4 +14,7 @@ export class File extends BaseEntity {
 
   @Column({ type: 'varchar', length: 512, nullable: false })
   public key: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  public url_expiry: Date;
 }

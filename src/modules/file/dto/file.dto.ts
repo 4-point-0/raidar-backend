@@ -33,6 +33,11 @@ export class FileDto extends BaseDto {
   })
   mime_type: string;
 
+  @ApiProperty({
+    type: Date,
+  })
+  url_expiry: Date;
+
   public static from(dto: Partial<FileDto>) {
     const fileDto = new FileDto();
     fileDto.id = dto.id;
@@ -40,6 +45,7 @@ export class FileDto extends BaseDto {
     fileDto.url = dto.url;
     fileDto.key = dto.key;
     fileDto.mime_type = dto.mime_type;
+    fileDto.url_expiry = dto.url_expiry;
     fileDto.created_at = dto.created_at;
     fileDto.updated_at = dto.updated_at;
     fileDto.created_by_id = dto.created_by_id;
@@ -54,6 +60,7 @@ export class FileDto extends BaseDto {
       url: entity.url,
       key: entity.key,
       mime_type: entity.mime_type,
+      url_expiry: entity.url_expiry,
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,
