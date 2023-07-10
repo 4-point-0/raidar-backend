@@ -9,7 +9,7 @@ import {
   Req,
   UseFilters,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { SongService } from './song.service';
 import { Auth } from '../../helpers/decorators/auth.decorator';
 import { Role } from '../../common/enums/enum';
@@ -21,9 +21,11 @@ import { CreateSongDto } from './dto/create-song.dto';
 import { SongDto } from './dto/song.dto';
 import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-response';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
+import { PaginatedDto } from '../../common/pagination/paginated-dto';
 
 @ApiTags('song')
 @Controller('song')
+@ApiExtraModels(PaginatedDto)
 export class SongController {
   constructor(private readonly songService: SongService) {}
 
@@ -56,6 +58,23 @@ export class SongController {
   ) {
     return handle(
       await this.songService.findAllArtistSongs(
+        request.user.id,
+        request.user.roles,
+        query,
+      ),
+    );
+  }
+
+  @Get('user/songs')
+  @Auth(Role.User)
+  @UseFilters(new HttpExceptionFilter())
+  @ApiPaginatedResponse(SongDto)
+  async findAllUserSongs(
+    @Req() request: AuthRequest,
+    @Query() query: ArtistSongsFilterDto,
+  ) {
+    return handle(
+      await this.songService.findAllUserSongs(
         request.user.id,
         request.user.roles,
         query,
