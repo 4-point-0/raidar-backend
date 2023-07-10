@@ -6,7 +6,6 @@ import {
   ParseFilePipe,
   Patch,
   Post,
-  Req,
   UploadedFile,
   UseFilters,
   UseInterceptors,
@@ -43,7 +42,6 @@ export class FileController {
   @CommonApiResponse(FileDto)
   @ApiResponse({ status: 422, description: 'Not valid file type' })
   async uploadFile(
-    @Req() request,
     @UploadedFile(
       new ParseFilePipe({
         validators: [new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_20MB })],
@@ -53,7 +51,6 @@ export class FileController {
   ) {
     return handle(
       await this.fileService.uploadFile(
-        request.user.id,
         file.buffer,
         file.originalname,
         file.mimetype,
@@ -74,7 +71,6 @@ export class FileController {
   @CommonApiResponse(FileDto)
   @ApiResponse({ status: 422, description: 'Not valid file type' })
   async updateFile(
-    @Req() request,
     @Param('id') id: string,
     @UploadedFile(
       new ParseFilePipe({
@@ -85,7 +81,6 @@ export class FileController {
   ) {
     return handle(
       await this.fileService.putFile(
-        request.user.id,
         id,
         file.buffer,
         file.originalname,

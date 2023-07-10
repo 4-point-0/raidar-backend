@@ -6,6 +6,7 @@ import { File } from './file.entity';
 import { AwsStorageService } from './aws-storage.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Song } from '../song/song.entity';
 
 @Injectable()
 export class FileService {
@@ -13,11 +14,12 @@ export class FileService {
   constructor(
     @InjectRepository(File)
     private fileRepository: Repository<File>,
+    @InjectRepository(Song)
+    private songRepository: Repository<Song>,
     private readonly awsStorageService: AwsStorageService,
   ) {}
 
   async uploadFile(
-    user_id: string,
     dataBuffer: Buffer,
     fileName: string,
     mimetype: string,
@@ -36,9 +38,13 @@ export class FileService {
         url: response.Location,
         key: response.Key,
         mime_type: mimetype,
-        created_by_id: user_id,
-        updated_by_id: user_id,
       });
+
+      if (file.mime_type === 'audio/wav') {
+        const currentDate = new Date();
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        file.url_expiry = currentDate;
+      }
 
       await this.fileRepository.save(file);
 
@@ -50,7 +56,6 @@ export class FileService {
   }
 
   async putFile(
-    user_id: string,
     id: string,
     dataBuffer: Buffer,
     fileName: string,
@@ -75,7 +80,11 @@ export class FileService {
 
       file.name = fileName;
       file.mime_type = mimetype;
-      file.updated_by_id = user_id;
+      if (file.mime_type === 'audio/wav') {
+        const currentDate = new Date();
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        file.url_expiry = currentDate;
+      }
 
       await this.fileRepository.save(file);
 
@@ -93,6 +102,18 @@ export class FileService {
       if (!file) {
         return new NotFound<string>('File not found');
       }
+
+      const songsWithThisFile = await this.songRepository
+        .createQueryBuilder('song')
+        .where('song.music_id = :id OR song.art_id = :id', { id: file.id })
+        .getMany();
+
+      if (songsWithThisFile.length > 0) {
+        return new ServerError<string>(
+          'File is used in a song and cannot be deleted.',
+        );
+      }
+
       const response = await this.awsStorageService.removeFile(file.key);
       if (response instanceof ServerError) {
         return new ServerError<string>(response.error.message);
@@ -110,6 +131,19 @@ export class FileService {
   async removeMany(fileIds: string[]): Promise<ServiceResult<boolean>> {
     if (fileIds.length > 0) {
       const files = await this.fileRepository.findByIds(fileIds);
+
+      const songsWithTheseFiles = await this.songRepository
+        .createQueryBuilder('song')
+        .where('song.music_id IN (:...ids) OR song.art_id IN (:...ids)', {
+          ids: fileIds,
+        })
+        .getMany();
+
+      if (songsWithTheseFiles.length > 0) {
+        return new ServerError<boolean>(
+          'Some files are used in a song and cannot be deleted.',
+        );
+      }
 
       const awsKeys = files.map((file) => {
         return { Key: file.key };
