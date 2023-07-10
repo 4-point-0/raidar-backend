@@ -7,6 +7,7 @@ import { swaggerDocConfig } from './common/config/swagger';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { AlbumModule } from './modules/album/album.module';
+import { FileModule } from './modules/file/file.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,7 +24,7 @@ async function bootstrap() {
   });
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerDocConfig, {
-    include: [AuthModule, UserModule, AlbumModule],
+    include: [AuthModule, UserModule, AlbumModule, FileModule],
   });
 
   SwaggerModule.setup('swagger', app, swaggerDocument);

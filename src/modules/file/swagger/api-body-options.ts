@@ -7,7 +7,6 @@ export const abiBodyOptionsFileUpload = {
         format: 'binary',
         nullable: false,
       },
-      tags: { type: 'array', items: { type: 'string' }, nullable: true },
     },
     required: ['file'],
   },

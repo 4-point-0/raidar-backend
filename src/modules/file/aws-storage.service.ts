@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import { ServerError } from '../../helpers/response/errors';
 import { v4 as uuid } from 'uuid';
-import { AwsFileKeyDto } from '../campaign/dto/aws-file-key.dto';
+import { AwsFileKeyDto } from './dto/aws-file-key.dto';
 
 @Injectable()
 export class AwsStorageService {
