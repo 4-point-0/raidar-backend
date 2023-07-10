@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Provider, Role } from '../../../common/enums/enum';
 import { User } from '../user.entity';
 
-export class UserProfileDto {
+export class UserDto {
   @ApiProperty()
   id: string;
 
@@ -42,7 +42,7 @@ export class UserProfileDto {
   @ApiProperty()
   wallet_address: string;
 
-  public static fromEntityUser(entity: User) {
+  public static fromEntity(entity: User) {
     return this.from({
       id: entity.id,
       email: entity.email,
@@ -57,8 +57,8 @@ export class UserProfileDto {
     });
   }
 
-  public static from(dto: Partial<UserProfileDto>) {
-    const user = new UserProfileDto();
+  public static from(dto: Partial<UserDto>) {
+    const user = new UserDto();
     user.id = dto.id;
     user.email = dto.email;
     user.first_name = dto.first_name;

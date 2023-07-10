@@ -12,6 +12,7 @@ import { PassportJwtDuplicationFixInterceptor } from '../auth/interceptors/passp
 import { configuration } from '../../common/config/configuration';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
+import { SongModule } from '../song/song.module';
 import { AlbumModule } from '../album/album.module';
 import { FileModule } from '../file/file.module';
 
@@ -32,6 +33,7 @@ dotenv.config({
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     AuthModule,
     UserModule,
+    SongModule,
     AlbumModule,
     FileModule,
   ],

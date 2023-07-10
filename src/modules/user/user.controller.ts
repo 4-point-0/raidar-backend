@@ -13,7 +13,7 @@ import { handle } from '../../helpers/response/handle';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CommonApiResponse } from '../../helpers/decorators/api-response-swagger.decorator';
-import { UserProfileDto } from './dto/user-profile.dto';
+import { UserDto } from './dto/user.dto';
 import { Role } from '../../common/enums/enum';
 import { Auth } from '../../helpers/decorators/auth.decorator';
 
@@ -24,9 +24,9 @@ export class UserController {
 
   @Auth(Role.User, Role.Artist)
   @Get('me')
-  @CommonApiResponse(UserProfileDto)
+  @CommonApiResponse(UserDto)
   findMe(@Req() request) {
-    return UserProfileDto.fromEntityUser(request.user);
+    return UserDto.fromEntity(request.user);
   }
 
   @Post('add-wallet')

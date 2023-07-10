@@ -5,11 +5,11 @@ export class PaginatedDto<TData> {
     total: number,
     count: number,
     results: TData[],
-    limit?: number,
-    offset?: number,
+    take?: number,
+    skip?: number,
   ) {
-    this.limit = limit;
-    this.offset = offset;
+    this.take = take;
+    this.skip = skip;
     this.total = total;
     this.count = count;
     this.results = results;
@@ -23,12 +23,12 @@ export class PaginatedDto<TData> {
   @ApiProperty({
     type: Number,
   })
-  limit: number;
+  take: number;
 
   @ApiProperty({
     type: Number,
   })
-  offset: number;
+  skip: number;
 
   @ApiProperty({
     type: Number,

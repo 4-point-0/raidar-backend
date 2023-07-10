@@ -30,10 +30,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async googleAuth(
-    token: string,
-    role?: Role,
-  ): Promise<ServiceResult<JwtTokenDto>> {
+  async googleAuth(token: string): Promise<ServiceResult<JwtTokenDto>> {
     try {
       if (!token) {
         return new Forbidden<JwtTokenDto>(`Not valid token!`);
@@ -71,7 +68,6 @@ export class AuthService {
           provider_id: tokenInfoData.sub,
           first_name: user_info.given_name,
           last_name: user_info.family_name,
-          role: role ? role : Role.Artist,
         });
       }
 
@@ -103,7 +99,7 @@ export class AuthService {
         last_name: user.last_name,
         provider: user.provider,
         provider_id: user.provider_id,
-        roles: [user.role],
+        roles: [Role.Artist],
       });
       await this.userRepository.save(newUser);
 
