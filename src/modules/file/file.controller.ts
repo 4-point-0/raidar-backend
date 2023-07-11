@@ -19,10 +19,9 @@ import { Auth } from '../../helpers/decorators/auth.decorator';
 import { fileFilter } from '../../helpers/file/image-filter';
 import { Role } from '../../common/enums/enum';
 import { FileDto } from './dto/file.dto';
-import { FileExtender } from '../../helpers/file/file-extender';
 import { abiBodyOptionsFileUpload } from './swagger/api-body-options';
 import { HttpExceptionFilter } from '../../helpers/filters/http-exception.filter';
-import { MAX_FILE_SIZE_20MB } from '../../common/constants';
+import { MAX_FILE_SIZE_150MB } from '../../common/constants';
 
 @ApiTags('file')
 @Controller('file')
@@ -31,7 +30,6 @@ export class FileController {
 
   @Post()
   @Auth(Role.Artist, Role.User)
-  @UseInterceptors(FileExtender)
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: fileFilter,
@@ -44,7 +42,9 @@ export class FileController {
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_20MB })],
+        validators: [
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_150MB }),
+        ],
       }),
     )
     file: any,
@@ -60,7 +60,6 @@ export class FileController {
 
   @Patch(':id')
   @Auth(Role.Artist, Role.User)
-  @UseInterceptors(FileExtender)
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: fileFilter,
@@ -74,7 +73,9 @@ export class FileController {
     @Param('id') id: string,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_20MB })],
+        validators: [
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_150MB }),
+        ],
       }),
     )
     file: any,
