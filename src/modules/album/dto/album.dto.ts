@@ -18,7 +18,7 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
   pka: string;
 
   @ApiProperty({ type: FileDto })
-  image: FileDto;
+  cover: FileDto;
 
   @ApiProperty({ type: SongDto, isArray: true })
   songs: SongDto[];
@@ -28,7 +28,7 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
     albumDto.id = album.id;
     albumDto.title = album.title;
     albumDto.pka = album.pka;
-    albumDto.image = album.image;
+    albumDto.cover = album.cover;
     albumDto.songs = album.songs;
     albumDto.created_at = album.created_at;
     albumDto.updated_at = album.updated_at;
@@ -42,8 +42,10 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
       id: entity.id,
       title: entity.title,
       pka: entity.pka,
-      image: FileDto.fromEntity(entity.image),
-      songs: entity.songs.map((song) => SongDto.fromEntity(song)),
+      cover: FileDto.fromEntity(entity.cover),
+      songs: entity.songs
+        ? entity.songs.map((song) => SongDto.fromEntity(song))
+        : [],
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,
@@ -56,7 +58,7 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
       id: entity.id,
       title: entity.title,
       pka: entity.pka,
-      image: FileDto.fromEntity(entity.image),
+      cover: FileDto.fromEntity(entity.cover),
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,

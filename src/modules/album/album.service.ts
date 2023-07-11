@@ -44,13 +44,13 @@ export class AlbumService {
       album.title = dto.title;
       album.pka = dto.pka;
 
-      const image = await this.fileRepository.findOneBy({ id: dto.image_id });
+      const cover = await this.fileRepository.findOneBy({ id: dto.cover_id });
 
-      if (!image) {
+      if (!cover) {
         return new BadRequest('Image not found!');
       }
 
-      album.image = image;
+      album.cover = cover;
       album.created_by_id = creatorId;
       album.updated_by_id = creatorId;
 
