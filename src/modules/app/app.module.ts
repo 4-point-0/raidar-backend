@@ -14,6 +14,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
 import { SongModule } from '../song/song.module';
 import { AlbumModule } from '../album/album.module';
+import { FileModule } from '../file/file.module';
 
 dotenv.config({
   path: existsSync(`.env.${process.env.MODE}`)
@@ -34,6 +35,7 @@ dotenv.config({
     UserModule,
     SongModule,
     AlbumModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [

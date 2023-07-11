@@ -26,4 +26,10 @@ export const configuration = () => ({
     secret: process.env.GOOGLE_SECRET,
     callback_url: process.env.GOOGLE_CALLBACK_URL,
   },
+  aws: {
+    access_key: process.env.AWS_ACCESS_KEY,
+    secret_key: process.env.AWS_SECRET_KEY,
+    bucket_name: process.env.AWS_BUCKET_NAME,
+    region: process.env.AWS_REGION,
+  },
 });
