@@ -13,6 +13,10 @@ import {
 import { AlbumDto } from './dto/album.dto';
 import { File } from '../../modules/file/file.entity';
 import { Role } from 'src/common/enums/enum';
+import { findAllAlbumsQuery, findOneAlbumQuery } from './queries/album-queries';
+import { AlbumFilterDto } from './dto/album-filter.dto';
+import { mapPaginatedAlbums } from './mappers/album.mappers';
+import { PaginatedDto } from 'src/common/pagination/paginated-dto';
 
 @Injectable()
 export class AlbumService {
@@ -40,13 +44,13 @@ export class AlbumService {
       album.title = dto.title;
       album.pka = dto.pka;
 
-      const image = await this.fileRepository.findOneBy({ id: dto.image_id });
+      const cover = await this.fileRepository.findOneBy({ id: dto.cover_id });
 
-      if (!image) {
+      if (!cover) {
         return new BadRequest('Image not found!');
       }
 
-      album.image = image;
+      album.cover = cover;
       album.created_by_id = creatorId;
       album.updated_by_id = creatorId;
 
@@ -59,39 +63,42 @@ export class AlbumService {
     }
   }
 
-  async getAlbum(albumId: string): Promise<ServiceResult<AlbumDto>> {
+  async findOne(id: string): Promise<ServiceResult<AlbumDto>> {
     try {
-      const album = await this.albumRepository.findOne({
-        where: {
-          id: albumId,
-        },
-        relations: {
-          image: true,
-        },
-      });
+      const album = await this.albumRepository.findOne(findOneAlbumQuery(id));
 
       if (!album) return new NotFound('Album not found');
 
       return new ServiceResult<AlbumDto>(AlbumDto.fromEntity(album));
     } catch (error) {
-      this.logger.error('AlbumService - getAlbum', error);
+      this.logger.error('AlbumService - findOne', error);
       return new ServerError<AlbumDto>(`Can't get album`);
     }
   }
 
-  async getAll(): Promise<ServiceResult<AlbumDto[]>> {
+  async findAll(
+    roles: Role[],
+    query: AlbumFilterDto,
+  ): Promise<ServiceResult<PaginatedDto<AlbumDto>>> {
     try {
-      const albums = await this.albumRepository.find({
-        relations: {
-          image: true,
-        },
-      });
-      return new ServiceResult<AlbumDto[]>(
-        albums.map((album) => AlbumDto.fromEntity(album)),
+      if (!roles.includes(Role.Artist)) {
+        return new Forbidden<PaginatedDto<AlbumDto>>(
+          `You don't have permission for this operation!`,
+        );
+      }
+      const take = query.take || 10;
+      const skip = query.skip || 0;
+
+      const [result, total] = await this.albumRepository.findAndCount(
+        findAllAlbumsQuery(take, skip),
+      );
+
+      return new ServiceResult<PaginatedDto<AlbumDto>>(
+        mapPaginatedAlbums(result, total, take, skip),
       );
     } catch (error) {
-      this.logger.error('AlbumService - getAll', error);
-      return new ServerError<AlbumDto[]>(`Can't get albums`);
+      this.logger.error('AlbumService - findAll', error);
+      return new ServerError<PaginatedDto<AlbumDto>>(`Can't get albums`);
     }
   }
 }

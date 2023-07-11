@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  HttpCode,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
@@ -39,6 +40,7 @@ export class FileController {
   @ApiBody(abiBodyOptionsFileUpload)
   @CommonApiResponse(FileDto)
   @ApiResponse({ status: 422, description: 'Not valid file type' })
+  @HttpCode(200)
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({

@@ -163,7 +163,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       pka: entity.pka,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
-      album: entity.album ? AlbumDto.fromEntity(entity.album) : null,
+      album: entity.album ? AlbumDto.fromEntityForSong(entity.album) : null,
       last_listing: ListingDto.fromEntity(
         entity.listings.sort((a: Listing, b: Listing) => {
           return b.created_at.getTime() - a.created_at.getTime();

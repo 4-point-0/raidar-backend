@@ -144,7 +144,7 @@ export class SongService {
         );
       }
 
-      const take = query.take || undefined;
+      const take = query.take || 10;
       const skip = query.skip || 0;
       const title = query.title || '';
 
@@ -173,7 +173,7 @@ export class SongService {
         );
       }
 
-      const take = query.take || undefined;
+      const take = query.take || 10;
       const skip = query.skip || 0;
       const title = query.title || '';
 
