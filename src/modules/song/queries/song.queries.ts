@@ -16,16 +16,13 @@ export const findOneSong = (id: string) => {
 };
 
 export const findAllArtistSongs = (
-  title: string,
+  filters: any,
   user_id: string,
   take: number,
   skip: number,
 ) => {
   return {
-    where: {
-      title: Like('%' + title + '%'),
-      user: { id: user_id },
-    },
+    where: filters,
     relations: [
       'user',
       'album.image',

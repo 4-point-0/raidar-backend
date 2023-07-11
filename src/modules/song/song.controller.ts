@@ -9,7 +9,7 @@ import {
   Req,
   UseFilters,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SongService } from './song.service';
 import { Auth } from '../../helpers/decorators/auth.decorator';
 import { Role } from '../../common/enums/enum';
@@ -22,6 +22,7 @@ import { SongDto } from './dto/song.dto';
 import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-response';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
+import { SongFiltersDto } from './dto/songs.filter.dto';
 
 @ApiTags('song')
 @Controller('song')
@@ -52,15 +53,28 @@ export class SongController {
   @Auth(Role.Artist)
   @UseFilters(new HttpExceptionFilter())
   @ApiPaginatedResponse(SongDto)
+  @ApiQuery({ name: 'title', required: false, type: String })
+  @ApiQuery({ name: 'artist', required: false, type: String })
+  @ApiQuery({ name: 'minLength', required: false, type: Number })
+  @ApiQuery({ name: 'maxLength', required: false, type: Number })
+  @ApiQuery({ name: 'genre', required: false, type: String })
+  @ApiQuery({ name: 'mood', required: false, type: String, isArray: true })
+  @ApiQuery({ name: 'tags', required: false, type: String, isArray: true })
+  @ApiQuery({ name: 'minBpm', required: false, type: Number })
+  @ApiQuery({ name: 'maxBpm', required: false, type: Number })
+  @ApiQuery({ name: 'instrumental', required: false, type: Boolean })
+  @ApiQuery({ name: 'musical_key', required: false, type: String })
+  @ApiQuery({ name: 'take', required: false, type: Number })
+  @ApiQuery({ name: 'skip', required: false, type: Number })
   async findAllArtistSongs(
     @Req() request: AuthRequest,
-    @Query() query: ArtistSongsFilterDto,
+    @Query() filters: SongFiltersDto,
   ) {
     return handle(
       await this.songService.findAllArtistSongs(
         request.user.id,
         request.user.roles,
-        query,
+        filters,
       ),
     );
   }

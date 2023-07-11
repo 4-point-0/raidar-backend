@@ -26,6 +26,7 @@ import {
 } from './queries/song.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
+import { SongFiltersDto } from './dto/songs.filter.dto';
 
 @Injectable()
 export class SongService {
@@ -135,7 +136,7 @@ export class SongService {
   async findAllArtistSongs(
     user_id: string,
     roles: Role[],
-    query: ArtistSongsFilterDto,
+    filters: SongFiltersDto,
   ): Promise<ServiceResult<PaginatedDto<SongDto>>> {
     try {
       if (!roles.includes(Role.Artist)) {
@@ -144,13 +145,39 @@ export class SongService {
         );
       }
 
-      const take = query.take || undefined;
-      const skip = query.skip || 0;
-      const title = query.title || '';
+      const take = filters.take || undefined;
+      const skip = filters.skip || 0;
 
-      const [result, total] = await this.songRepository.findAndCount(
-        findAllArtistSongs(title, user_id, take, skip),
-      );
+      // Create the parameters
+      const params = {
+        title: filters.title,
+        artist: filters.artist,
+        minLength: filters.minLength,
+        maxLength: filters.maxLength,
+        genre: filters.genre,
+        mood: filters.mood,
+        tags: filters.tags,
+        minBpm: filters.minBpm,
+        maxBpm: filters.maxBpm,
+        instrumental: filters.instrumental,
+        musical_key: filters.musical_key,
+      };
+
+      // Create the query
+      const query = findAllArtistSongs(params, user_id, take, skip);
+
+      // Execute the query
+      const [result, total] = await this.songRepository
+        .createQueryBuilder('song')
+        .leftJoinAndSelect('song.user', 'user')
+        .leftJoinAndSelect('song.album', 'album')
+        .leftJoinAndSelect('song.music', 'music')
+        .leftJoinAndSelect('song.art', 'art')
+        .leftJoinAndSelect('song.listings', 'listing')
+        .where(query)
+        .take(take)
+        .skip(skip)
+        .getManyAndCount();
 
       return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedSongsDto(result, total, take, skip),
