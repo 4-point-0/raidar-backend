@@ -32,4 +32,8 @@ export const configuration = () => ({
     bucket_name: process.env.AWS_BUCKET_NAME,
     region: process.env.AWS_REGION,
   },
+  sendgrid: {
+    api_key: process.env.SENDGRID_API_KEY,
+    email: process.env.SENDGRID_EMAIL,
+  },
 });
