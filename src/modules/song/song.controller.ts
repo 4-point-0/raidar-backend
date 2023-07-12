@@ -9,7 +9,7 @@ import {
   Req,
   UseFilters,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { SongService } from './song.service';
 import { Auth } from '../../helpers/decorators/auth.decorator';
 import { Role } from '../../common/enums/enum';
@@ -22,7 +22,6 @@ import { SongDto } from './dto/song.dto';
 import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-response';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
-import { OptionalIntPipe } from '../../helpers/pipes/parse-int.pipe';
 
 @ApiTags('song')
 @Controller('song')
