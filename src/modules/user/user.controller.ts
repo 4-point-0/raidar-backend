@@ -32,7 +32,7 @@ export class UserController {
   @Post('add-wallet')
   @Auth(Role.User, Role.Artist)
   @UseFilters(new HttpExceptionFilter())
-  @CommonApiResponse(Boolean)
+  @CommonApiResponse(UserDto)
   @HttpCode(200)
   async addWallet(@Body() dto: AddWalletDto) {
     return handle(await this.userService.addWallet(dto));

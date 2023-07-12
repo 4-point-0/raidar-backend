@@ -17,6 +17,8 @@ import {
   NotFound,
   ServerError,
 } from '../../helpers/response/errors';
+import { isNearWallet } from '../../utils/near-wallet-validation';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -29,15 +31,12 @@ export class UserService {
     private readonly httpService: HttpService,
   ) {}
 
-  public async addWallet(dto: AddWalletDto): Promise<ServiceResult<boolean>> {
+  public async addWallet(dto: AddWalletDto): Promise<ServiceResult<UserDto>> {
     try {
-      const isValid = await this.nearValidate(
-        dto.wallet_address,
-        dto.signedJsonString,
-      );
-
-      if (!isValid) {
-        return new BadRequest('Not valid signature!');
+      if (!isNearWallet(dto.wallet_address)) {
+        return new BadRequest<UserDto>(
+          `Wallet ${dto.wallet_address} not valid`,
+        );
       }
 
       const user = await this.userRepository.findOneBy({ id: dto.id });
@@ -54,10 +53,12 @@ export class UserService {
 
       await this.userRepository.save(user);
 
-      return new ServiceResult<boolean>(true);
+      const updated_user = await this.userRepository.findOneBy({ id: dto.id });
+
+      return new ServiceResult<UserDto>(UserDto.fromEntity(updated_user));
     } catch (error) {
       this.logger.error('UserService - addWallet', error);
-      return new ServerError<boolean>(`Can't add wallet`);
+      return new ServerError<UserDto>(`Can't add wallet`);
     }
   }
 

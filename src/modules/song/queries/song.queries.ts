@@ -7,7 +7,7 @@ export const findOneSong = (id: string) => {
     where: { id },
     relations: [
       'user',
-      'album.image',
+      'album.cover',
       'music',
       'art',
       'listings',
@@ -122,7 +122,7 @@ export const findAllUserSongs = (
     },
     relations: [
       'user',
-      'album.image',
+      'album.cover',
       'music',
       'art',
       'listings',

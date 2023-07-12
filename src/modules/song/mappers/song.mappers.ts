@@ -48,8 +48,8 @@ export const mapPaginatedSongsDto = (
 
   return {
     total: total,
-    take: take ? Number(take) : total,
-    skip: skip ? Number(skip) : 0,
+    take: Number(take),
+    skip: Number(skip),
     count: songDtos.length,
     results: songDtos,
   };

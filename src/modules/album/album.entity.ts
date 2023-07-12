@@ -14,12 +14,12 @@ export class Album extends BaseEntity {
   @OneToOne(() => File)
   @JoinColumn([
     {
-      name: 'image_id',
+      name: 'cover_id',
       referencedColumnName: 'id',
-      foreignKeyConstraintName: 'image_id_fkey',
+      foreignKeyConstraintName: 'cover_id_fkey',
     },
   ])
-  image: File;
+  cover: File;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   public pka: string;
