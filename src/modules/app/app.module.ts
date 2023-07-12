@@ -1,4 +1,5 @@
 import { Module, Scope } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import * as dotenv from 'dotenv';
@@ -15,6 +16,9 @@ import { UserModule } from '../user/user.module';
 import { SongModule } from '../song/song.module';
 import { AlbumModule } from '../album/album.module';
 import { FileModule } from '../file/file.module';
+import { TasksModule } from '../task/task.module';
+import { CoingeckoModule } from '../coingecko/coingecko.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 dotenv.config({
   path: existsSync(`.env.${process.env.MODE}`)
@@ -30,12 +34,16 @@ dotenv.config({
       load: [configuration],
       validationSchema: envValidationSchema,
     }),
+    CacheModule.register({ isGlobal: true }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
+    ScheduleModule.forRoot(),
     AuthModule,
     UserModule,
     SongModule,
     AlbumModule,
     FileModule,
+    TasksModule,
+    CoingeckoModule,
   ],
   controllers: [AppController],
   providers: [
