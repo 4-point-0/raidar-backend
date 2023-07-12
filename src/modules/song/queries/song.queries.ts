@@ -1,11 +1,11 @@
-import { IsNull, Like, MoreThan, Not, Raw } from 'typeorm';
+import { Like, Raw } from 'typeorm';
 
 export const findOneSong = (id: string) => {
   return {
     where: { id },
     relations: [
       'user',
-      'album.image',
+      'album.cover',
       'music',
       'art',
       'listings',
@@ -28,7 +28,7 @@ export const findAllArtistSongs = (
     },
     relations: [
       'user',
-      'album.image',
+      'album.cover',
       'music',
       'art',
       'listings',
@@ -54,7 +54,7 @@ export const findAllUserSongs = (
     },
     relations: [
       'user',
-      'album.image',
+      'album.cover',
       'music',
       'art',
       'listings',

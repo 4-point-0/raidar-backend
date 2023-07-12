@@ -26,6 +26,7 @@ import {
 } from './queries/song.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
+import { MIME_TYPE_WAV } from '../../common/constants';
 
 @Injectable()
 export class SongService {
@@ -74,6 +75,10 @@ export class SongService {
 
       if (!music_file) {
         return new NotFound<SongDto>(`Music file not found!`);
+      }
+
+      if (music_file.mime_type !== MIME_TYPE_WAV) {
+        return new BadRequest<SongDto>(`Music file must be of type wav`);
       }
 
       const art_file = await this.fileRepository.findOneBy({
@@ -186,7 +191,6 @@ export class SongService {
       );
     } catch (error) {
       this.logger.error('SongService - findAllUserSongs', error);
-      console.log(error);
       return new ServerError<PaginatedDto<SongDto>>(`Can't get user songs`);
     }
   }

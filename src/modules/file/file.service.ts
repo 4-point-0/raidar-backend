@@ -7,6 +7,7 @@ import { AwsStorageService } from './aws-storage.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Song } from '../song/song.entity';
+import { MIME_TYPE_WAV } from '../../common/constants';
 
 @Injectable()
 export class FileService {
@@ -40,7 +41,7 @@ export class FileService {
         mime_type: mimetype,
       });
 
-      if (file.mime_type === 'audio/wav') {
+      if (file.mime_type === MIME_TYPE_WAV) {
         const currentDate = new Date();
         currentDate.setFullYear(currentDate.getFullYear() + 1);
         file.url_expiry = currentDate;
@@ -80,7 +81,7 @@ export class FileService {
 
       file.name = fileName;
       file.mime_type = mimetype;
-      if (file.mime_type === 'audio/wav') {
+      if (file.mime_type === MIME_TYPE_WAV) {
         const currentDate = new Date();
         currentDate.setFullYear(currentDate.getFullYear() + 1);
         file.url_expiry = currentDate;

@@ -47,7 +47,7 @@ export class AlbumService {
       const cover = await this.fileRepository.findOneBy({ id: dto.cover_id });
 
       if (!cover) {
-        return new BadRequest('Image not found!');
+        return new BadRequest('Cover image not found!');
       }
 
       album.cover = cover;

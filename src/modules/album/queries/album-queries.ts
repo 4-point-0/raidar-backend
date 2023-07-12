@@ -1,7 +1,7 @@
 export const findAllAlbumsQuery = (take: number, skip: number) => {
   return {
     relations: {
-      image: true,
+      cover: true,
       songs: {
         user: true,
         music: true,
@@ -23,7 +23,7 @@ export const findOneAlbumQuery = (id: string) => {
       id,
     },
     relations: {
-      image: true,
+      cover: true,
       songs: {
         user: true,
         music: true,
