@@ -1,6 +1,7 @@
 export enum Role {
   User = 'user',
   Artist = 'artist',
+  Admin = 'admin',
 }
 
 export enum Provider {
