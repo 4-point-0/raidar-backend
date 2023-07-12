@@ -33,15 +33,15 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
   }
 
   public static fromEntity(entity: Album) {
-    return this.from({
-      id: entity.id,
-      title: entity.title,
-      pka: entity.pka,
-      image: FileDto.fromEntity(entity.image),
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
-      created_by_id: entity.created_by_id,
-      updated_by_id: entity.updated_by_id,
-    });
+    const albumDto = new AlbumDto();
+    albumDto.id = entity.id; // Manually assign the id property
+    albumDto.title = entity.title;
+    albumDto.pka = entity.pka;
+    albumDto.image = FileDto.fromEntity(entity.image);
+    albumDto.created_at = entity.created_at;
+    albumDto.updated_at = entity.updated_at;
+    albumDto.created_by_id = entity.created_by_id;
+    albumDto.updated_by_id = entity.updated_by_id;
+    return albumDto;
   }
 }

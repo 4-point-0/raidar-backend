@@ -23,6 +23,7 @@ import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-resp
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
+import { OptionalIntPipe } from '../../helpers/pipes/parse-int.pipe';
 
 @ApiTags('song')
 @Controller('song')
@@ -68,8 +69,36 @@ export class SongController {
   @ApiQuery({ name: 'skip', required: false, type: Number })
   async findAllArtistSongs(
     @Req() request: AuthRequest,
-    @Query() filters: SongFiltersDto,
+    @Query('minLength', new OptionalIntPipe()) minLength,
+    @Query('maxLength', new OptionalIntPipe()) maxLength,
+    @Query('minBpm', new OptionalIntPipe()) minBpm,
+    @Query('maxBpm', new OptionalIntPipe()) maxBpm,
+    @Query('take', new OptionalIntPipe()) take,
+    @Query('skip', new OptionalIntPipe()) skip,
+    @Query('title') title,
+    @Query('artist') artist,
+    @Query('genre') genre,
+    @Query('mood') mood,
+    @Query('tags') tags,
+    @Query('instrumental') instrumental,
+    @Query('musical_key') musical_key,
   ) {
+    const filters: SongFiltersDto = {
+      title,
+      artist,
+      minLength,
+      maxLength,
+      genre,
+      mood,
+      tags,
+      minBpm,
+      maxBpm,
+      instrumental,
+      musical_key,
+      take,
+      skip,
+    };
+
     return handle(
       await this.songService.findAllArtistSongs(
         request.user.id,

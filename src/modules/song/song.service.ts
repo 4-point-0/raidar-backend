@@ -149,35 +149,31 @@ export class SongService {
       const skip = filters.skip || 0;
 
       // Create the parameters
-      const params = {
-        title: filters.title,
-        artist: filters.artist,
-        minLength: filters.minLength,
-        maxLength: filters.maxLength,
-        genre: filters.genre,
-        mood: filters.mood,
-        tags: filters.tags,
-        minBpm: filters.minBpm,
-        maxBpm: filters.maxBpm,
-        instrumental: filters.instrumental,
-        musical_key: filters.musical_key,
+      const query = {
+        title: filters.title || undefined,
+        artist: filters.artist || undefined,
+        minLength: filters.minLength || undefined,
+        maxLength: filters.maxLength || undefined,
+        genre: filters.genre || undefined,
+        mood: filters.mood || undefined,
+        tags: filters.tags || undefined,
+        minBpm: filters.minBpm || undefined,
+        maxBpm: filters.maxBpm || undefined,
+        instrumental: filters.instrumental || undefined,
+        musical_key: filters.musical_key || undefined,
       };
 
-      // Create the query
-      const query = findAllArtistSongs(params, user_id, take, skip);
+      // Log the updated query object
+      console.log('Query:', query);
+      const result = await findAllArtistSongs(
+        this.songRepository,
+        user_id,
+        query,
+        take,
+        skip,
+      );
 
-      // Execute the query
-      const [result, total] = await this.songRepository
-        .createQueryBuilder('song')
-        .leftJoinAndSelect('song.user', 'user')
-        .leftJoinAndSelect('song.album', 'album')
-        .leftJoinAndSelect('song.music', 'music')
-        .leftJoinAndSelect('song.art', 'art')
-        .leftJoinAndSelect('song.listings', 'listing')
-        .where(query)
-        .take(take)
-        .skip(skip)
-        .getManyAndCount();
+      const total = result.length;
 
       return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedSongsDto(result, total, take, skip),
