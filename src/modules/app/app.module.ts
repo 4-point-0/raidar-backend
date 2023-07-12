@@ -19,6 +19,7 @@ import { FileModule } from '../file/file.module';
 import { TasksModule } from '../task/task.module';
 import { CoingeckoModule } from '../coingecko/coingecko.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MarketplaceModule } from '../marketplace/marketplace.module';
 
 dotenv.config({
   path: existsSync(`.env.${process.env.MODE}`)
@@ -44,6 +45,7 @@ dotenv.config({
     FileModule,
     TasksModule,
     CoingeckoModule,
+    MarketplaceModule,
   ],
   controllers: [AppController],
   providers: [

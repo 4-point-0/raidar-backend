@@ -14,6 +14,7 @@ import { AlbumModule } from './modules/album/album.module';
 import { FileModule } from './modules/file/file.module';
 import { TasksModule } from './modules/task/task.module';
 import { CoingeckoModule } from './modules/coingecko/coingecko.module';
+import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,7 +31,14 @@ async function bootstrap() {
   });
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerDocConfig, {
-    include: [AuthModule, UserModule, AlbumModule, SongModule, FileModule],
+    include: [
+      AuthModule,
+      UserModule,
+      AlbumModule,
+      SongModule,
+      FileModule,
+      MarketplaceModule,
+    ],
   });
 
   SwaggerModule.setup('swagger', app, swaggerDocument);

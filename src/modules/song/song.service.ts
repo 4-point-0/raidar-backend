@@ -26,7 +26,6 @@ import {
 } from './queries/song.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
-import { SongFiltersDto } from './dto/songs.filter.dto';
 import { MIME_TYPE_WAV } from '../../common/constants';
 
 @Injectable()
@@ -141,7 +140,7 @@ export class SongService {
   async findAllArtistSongs(
     user_id: string,
     roles: Role[],
-    filters: SongFiltersDto,
+    query: ArtistSongsFilterDto,
   ): Promise<ServiceResult<PaginatedDto<SongDto>>> {
     try {
       if (!roles.includes(Role.Artist)) {
@@ -150,35 +149,13 @@ export class SongService {
         );
       }
 
-      const take = filters.take || undefined;
-      const skip = filters.skip || 0;
+      const take = query.take || 10;
+      const skip = query.skip || 0;
+      const title = query.title || '';
 
-      // Create the parameters
-      const query = {
-        title: filters.title || undefined,
-        artist: filters.artist || undefined,
-        minLength: filters.minLength || undefined,
-        maxLength: filters.maxLength || undefined,
-        genre: filters.genre || undefined,
-        mood: filters.mood || undefined,
-        tags: filters.tags || undefined,
-        minBpm: filters.minBpm || undefined,
-        maxBpm: filters.maxBpm || undefined,
-        instrumental: filters.instrumental || undefined,
-        musical_key: filters.musical_key || undefined,
-      };
-
-      // Log the updated query object
-      console.log('Query:', query);
-      const result = await findAllArtistSongs(
-        this.songRepository,
-        user_id,
-        query,
-        take,
-        skip,
+      const [result, total] = await this.songRepository.findAndCount(
+        findAllArtistSongs(title, user_id, take, skip),
       );
-
-      const total = result.length;
 
       return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedSongsDto(result, total, take, skip),

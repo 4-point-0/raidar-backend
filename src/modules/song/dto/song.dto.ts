@@ -144,7 +144,6 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   }
 
   public static fromEntity(entity: Song) {
-    console.log(entity);
     return this.from({
       id: entity.id,
       user_id: entity.user.id,
