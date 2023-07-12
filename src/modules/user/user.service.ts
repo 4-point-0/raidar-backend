@@ -31,15 +31,6 @@ export class UserService {
 
   public async addWallet(dto: AddWalletDto): Promise<ServiceResult<boolean>> {
     try {
-      const isValid = await this.nearValidate(
-        dto.wallet_address,
-        dto.signedJsonString,
-      );
-
-      if (!isValid) {
-        return new BadRequest('Not valid signature!');
-      }
-
       const user = await this.userRepository.findOneBy({ id: dto.id });
 
       if (!user) {
