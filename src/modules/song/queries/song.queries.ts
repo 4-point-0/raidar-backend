@@ -28,7 +28,7 @@ export const findAllArtistSongs = async (
     .createQueryBuilder('song')
     .leftJoinAndSelect('song.user', 'user')
     .leftJoinAndSelect('song.album', 'album')
-    .leftJoinAndSelect('album.image', 'image')
+    .leftJoinAndSelect('album.cover', 'cover')
     .leftJoinAndSelect('song.music', 'music')
     .leftJoinAndSelect('song.art', 'art')
     .leftJoinAndSelect('song.listings', 'listings')
