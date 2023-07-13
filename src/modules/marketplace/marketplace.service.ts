@@ -62,7 +62,7 @@ export class MarketplaceService {
         mapPaginatedSongsDto(songs, total, take, skip),
       );
     } catch (error) {
-      this.logger.error('SongService - findAllArtistSongs', error);
+      this.logger.error('SongService - findAllMarketplaceArtistSongs', error);
       return new ServerError<PaginatedDto<SongDto>>(`Can't get artist songs`);
     }
   }

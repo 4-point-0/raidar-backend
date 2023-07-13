@@ -84,6 +84,7 @@ export const findAllMarketplaceArtistSongs = async (
       musical_key: `%${query.musical_key}%`,
     });
   }
+  qb = qb.skip(skip).take(take);
   const [results, count] = await qb.getManyAndCount();
 
   return { songs: results, count };
