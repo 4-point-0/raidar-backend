@@ -91,6 +91,10 @@ export class SongService {
 
       const user = await this.userRepository.findOneBy({ id: dto.user_id });
 
+      if (!user) {
+        return new NotFound<SongDto>(`User not found!`);
+      }
+
       const new_song = this.songRepository.create(
         createSongMapper(dto, user, album, music_file, art_file),
       );

@@ -8,6 +8,8 @@ export class AdminRole1689153627024 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {
-    // Empty down
+    await queryRunner.query(
+      `ALTER TYPE "public"."user_roles_enum" DROP VALUE 'admin'`,
+    );
   }
 }
