@@ -1,10 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Song } from '../song.entity';
-import { Listing } from '../../../modules/listing/listing.entity';
 import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 import { AlbumDto } from '../../../modules/album/dto/album.dto';
 import { ListingDto } from '../../../modules/listing/dto/listing.dto';
+import { Listing } from 'src/modules/listing/listing.entity';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
@@ -17,10 +17,10 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   user_id: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: AlbumDto,
   })
-  album: AlbumDto;
+  album?: AlbumDto;
 
   @ApiProperty({
     type: String,
@@ -32,11 +32,11 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   length: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     nullable: true,
   })
-  genre: string;
+  genre?: string;
 
   @ApiProperty({
     type: String,
@@ -50,17 +50,17 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   tags: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     nullable: true,
   })
-  bpm: number;
+  bpm?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: Boolean,
     nullable: true,
   })
-  instrumental: boolean;
+  instrumental?: boolean;
 
   @ApiProperty({
     type: String,
@@ -74,11 +74,11 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   vocal_ranges: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     nullable: true,
   })
-  musical_key: string;
+  musical_key?: string;
 
   @ApiProperty({
     type: FileDto,
@@ -112,10 +112,10 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   pka: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: ListingDto,
   })
-  last_listing: ListingDto;
+  last_listing?: ListingDto;
 
   public static from(dto: Partial<SongDto>) {
     const song = new SongDto();
