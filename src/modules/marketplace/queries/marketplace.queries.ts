@@ -4,11 +4,10 @@ import { SongFiltersDto } from '../dto/songs.filter.dto';
 
 export const findAllMarketplaceArtistSongs = async (
   songRepository: Repository<Song>,
-  userId: string,
   query: SongFiltersDto,
   take = 10,
   skip = 0,
-): Promise<Song[]> => {
+): Promise<{ songs: Song[]; count: number }> => {
   let qb = songRepository
     .createQueryBuilder('song')
     .leftJoinAndSelect('song.user', 'user')
@@ -18,8 +17,7 @@ export const findAllMarketplaceArtistSongs = async (
     .leftJoinAndSelect('song.art', 'art')
     .leftJoinAndSelect('song.listings', 'listings')
     .leftJoinAndSelect('listings.seller', 'seller')
-    .leftJoinAndSelect('listings.buyer', 'buyer')
-    .where('user.id = :userId', { userId });
+    .leftJoinAndSelect('listings.buyer', 'buyer');
 
   if (query.title) {
     qb = qb.andWhere('song.title ILIKE :title', {
@@ -86,8 +84,7 @@ export const findAllMarketplaceArtistSongs = async (
       musical_key: `%${query.musical_key}%`,
     });
   }
+  const [results, count] = await qb.getManyAndCount();
 
-  qb = qb.skip(skip).take(take);
-  const sql = qb.getQueryAndParameters();
-  return await qb.getMany();
+  return { songs: results, count };
 };

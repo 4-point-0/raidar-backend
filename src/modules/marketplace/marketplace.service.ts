@@ -20,19 +20,18 @@ export class MarketplaceService {
     private songRepository: Repository<Song>,
   ) {}
 
-  async findAllMarketplaceArtistSongs(
-    user_id: string,
+  async findAll(
     roles: Role[],
     filters: SongFiltersDto,
   ): Promise<ServiceResult<PaginatedDto<SongDto>>> {
     try {
-      if (!roles.includes(Role.Artist)) {
+      if (!(roles.includes(Role.Artist) || roles.includes(Role.User))) {
         return new BadRequest<PaginatedDto<SongDto>>(
           `You don't have permission for this operation!`,
         );
       }
 
-      const take = filters.take || undefined;
+      const take = filters.take || 10;
       const skip = filters.skip || 0;
 
       const query = {
@@ -51,16 +50,16 @@ export class MarketplaceService {
 
       const result = await findAllMarketplaceArtistSongs(
         this.songRepository,
-        user_id,
         query,
         take,
         skip,
       );
 
-      const total = result.length;
+      const songs = result.songs;
+      const total = result.count;
 
       return new ServiceResult<PaginatedDto<SongDto>>(
-        mapPaginatedSongsDto(result, total, take, skip),
+        mapPaginatedSongsDto(songs, total, take, skip),
       );
     } catch (error) {
       this.logger.error('SongService - findAllArtistSongs', error);

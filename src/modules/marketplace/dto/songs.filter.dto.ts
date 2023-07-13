@@ -5,57 +5,58 @@ import {
   IsBoolean,
   IsArray,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class SongFiltersDto {
+  @ApiProperty({ required: false, type: String })
   @IsOptional()
-  @IsString()
   public title?: string;
 
+  @ApiProperty({ required: false, type: String })
   @IsOptional()
-  @IsString()
   public artist?: string;
 
+  @ApiProperty({ required: false, type: Number })
   @IsOptional()
-  @IsInt()
   public minLength?: number;
 
+  @ApiProperty({ required: false, type: Number })
   @IsOptional()
-  @IsInt()
   public maxLength?: number;
 
+  @ApiProperty({ required: false, type: String })
   @IsOptional()
-  @IsString()
   public genre?: string;
 
+  @ApiProperty({ required: false, type: [String] })
   @IsOptional()
-  @IsArray()
   public mood?: string[];
 
+  @ApiProperty({ required: false, type: [String] })
   @IsOptional()
-  @IsArray()
   public tags?: string[];
 
+  @ApiProperty({ required: false, type: Number })
   @IsOptional()
-  @IsInt()
   public minBpm?: number;
 
+  @ApiProperty({ required: false, type: Number })
   @IsOptional()
-  @IsInt()
   public maxBpm?: number;
 
+  @ApiProperty({ required: false, type: Boolean })
   @IsOptional()
-  @IsBoolean()
   public instrumental?: boolean;
 
+  @ApiProperty({ required: false, type: String })
   @IsOptional()
-  @IsString()
   public musical_key?: string;
 
+  @ApiProperty({ required: false, type: Number })
   @IsOptional()
-  @IsInt()
   public take?: number;
 
+  @ApiProperty({ required: false, type: Number })
   @IsOptional()
-  @IsInt()
   public skip?: number;
 }
