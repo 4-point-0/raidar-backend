@@ -1,8 +1,23 @@
-import { Like, Raw } from 'typeorm';
+import { IsNull, Like, Raw } from 'typeorm';
 
 export const findOneSong = (id: string) => {
   return {
     where: { id },
+    relations: [
+      'user',
+      'album.cover',
+      'music',
+      'art',
+      'listings',
+      'listings.seller',
+      'listings.buyer',
+    ],
+  };
+};
+
+export const findOneNotSoldSong = (id: string) => {
+  return {
+    where: { id, listings: { buyer: IsNull() } },
     relations: [
       'user',
       'album.cover',

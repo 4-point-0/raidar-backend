@@ -54,3 +54,24 @@ export const mapPaginatedSongsDto = (
     results: songDtos,
   };
 };
+
+export const mapPaginatedSongsMarketplaceDto = (
+  songs: Song[],
+  near_price: number,
+  total: number,
+  take?: number,
+  skip?: number,
+): PaginatedDto<SongDto> => {
+  const songDtos: SongDto[] = [];
+  for (const song of songs) {
+    songDtos.push(SongDto.fromEntityForMarketplace(song, near_price));
+  }
+
+  return {
+    total: total,
+    take: Number(take),
+    skip: Number(skip),
+    count: songDtos.length,
+    results: songDtos,
+  };
+};

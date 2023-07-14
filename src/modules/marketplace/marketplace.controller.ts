@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseFilters } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseFilters } from '@nestjs/common';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../../helpers/decorators/auth.decorator';
 import { Role } from '../../common/enums/enum';
@@ -10,6 +10,7 @@ import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-resp
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { MarketplaceService } from './marketplace.service';
+import { CommonApiResponse } from '../../helpers/decorators/api-response-swagger.decorator';
 
 @ApiTags('marketplace')
 @Controller('marketplace')
@@ -24,6 +25,16 @@ export class MarketplaceController {
   async findAll(@Req() request: AuthRequest, @Query() filters: SongFiltersDto) {
     return handle(
       await this.marketplaceService.findAll(request.user.roles, filters),
+    );
+  }
+
+  @Get('song/:id')
+  @Auth(Role.Artist, Role.User)
+  @UseFilters(new HttpExceptionFilter())
+  @CommonApiResponse(SongDto)
+  async findOneSong(@Req() request: AuthRequest, @Param('id') id: string) {
+    return handle(
+      await this.marketplaceService.findOneSong(id, request.user.roles),
     );
   }
 }
