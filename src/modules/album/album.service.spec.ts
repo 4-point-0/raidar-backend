@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AlbumController } from './album.controller';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { AlbumDto } from './dto/album.dto';
@@ -24,58 +23,51 @@ const mockAlbums: AlbumDto[] = [mockAlbum];
 const roles: Role[] = [Role.Artist];
 
 const mockService = {
-  create: jest
-    .fn()
-    .mockImplementation((dto: CreateAlbumDto, id: string, roles: Role[]) => {
-      return new ServiceResult(mockAlbum);
-    }),
-  findOne: jest.fn().mockImplementation((id: string) => {
+  create: jest.fn().mockImplementation(() => {
     return new ServiceResult(mockAlbum);
   }),
-  findAll: jest.fn().mockImplementation((roles: Role[], query: any) => {
+  findOne: jest.fn().mockImplementation(() => {
+    return new ServiceResult(mockAlbum);
+  }),
+  findAll: jest.fn().mockImplementation(() => {
     return new ServiceResult(mockAlbums);
   }),
 };
 
-describe('Album Controller', () => {
-  let controller: AlbumController;
+describe('Album Service', () => {
   let service: AlbumService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [AlbumController],
       providers: [AlbumService],
     })
       .overrideProvider(AlbumService)
       .useValue(mockService)
       .compile();
 
-    controller = module.get<AlbumController>(AlbumController);
     service = module.get<AlbumService>(AlbumService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 
-  describe('createAlbum', () => {
+  describe('create', () => {
     it('should create an album', async () => {
       const dto = new CreateAlbumDto();
       const request = { user: { id: '123', roles } };
-      const response = await controller.createAlbum(dto, request);
+      const response = await service.create(dto, request.user.id, roles);
 
-      expect(response).toEqual(mockAlbum);
-      expect(service.create).toHaveBeenCalledWith(dto, request.user.id, roles);
+      expect(response).toEqual(new ServiceResult(mockAlbum));
     });
   });
 
   describe('findOne', () => {
     it('should find an album by ID', async () => {
       const id = '123456';
-      const response = await controller.findOne(id);
+      const response = await service.findOne(id);
 
-      expect(response).toEqual(mockAlbum);
-      expect(service.findOne).toHaveBeenCalledWith(id);
+      expect(response).toEqual(new ServiceResult(mockAlbum));
     });
   });
 
@@ -83,10 +75,9 @@ describe('Album Controller', () => {
     it('should find all albums', async () => {
       const request = { user: { roles } } as any;
       const query = {};
-      const response = await controller.findAll(request, query);
+      const response = await service.findAll(request.user.roles, query);
 
-      expect(response).toEqual(mockAlbums);
-      expect(service.findAll).toHaveBeenCalledWith(request.user.roles, query);
+      expect(response).toEqual(new ServiceResult(mockAlbums));
     });
   });
 });

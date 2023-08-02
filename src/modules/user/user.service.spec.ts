@@ -5,16 +5,12 @@ import { User } from './user.entity';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { AddWalletDto } from './dto/add-wallet.dto';
-import { Repository } from 'typeorm';
 import { isNearWallet } from '../../utils/near-wallet-validation';
 
 jest.mock('../../utils/near-wallet-validation');
 
 describe('UserService', () => {
   let userService: UserService;
-  let userRepository: Repository<User>;
-  let httpService: HttpService;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,9 +39,6 @@ describe('UserService', () => {
     }).compile();
 
     userService = module.get<UserService>(UserService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    httpService = module.get<HttpService>(HttpService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   describe('addWallet', () => {
@@ -65,6 +58,4 @@ describe('UserService', () => {
       );
     });
   });
-
-  //NEARVALIDATE is private and we usually avoid testing private methods ?
 });

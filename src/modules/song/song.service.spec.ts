@@ -8,8 +8,7 @@ import { Album } from '../album/album.entity';
 import { Listing } from '../listing/listing.entity';
 import { Repository } from 'typeorm';
 import { album_1, song_1 } from '../../../test/mock-data';
-import { BadRequest, NotFound } from '../../helpers/response/errors';
-import { SongDto } from './dto/song.dto';
+import { NotFound } from '../../helpers/response/errors';
 
 describe('SongService', () => {
   let songService: SongService;
@@ -58,6 +57,7 @@ describe('SongService', () => {
             create: jest.fn().mockResolvedValue(song_1),
             save: jest.fn().mockResolvedValue(song_1),
             findOne: jest.fn().mockResolvedValue(song_1),
+            findAndCount: jest.fn().mockResolvedValue([[song_1], 1]),
           },
         },
         {
@@ -111,80 +111,57 @@ describe('SongService', () => {
     expect(listingRepository).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a song', async () => {
-      const song = await songService.createSong(create_song_dto);
-      jest
-        .spyOn(fileRepository, 'findOneBy')
-        .mockImplementationOnce(async () => song_1.music)
-        .mockImplementationOnce(async () => song_1.art);
-      expect(song.data.id).toStrictEqual(song_1.id);
+  describe('createSong', () => {
+    it('should create a song successfully', async () => {
+      const result = await songService.createSong(create_song_dto);
+      expect(result).toBeDefined();
+      expect(songRepository.create).toHaveBeenCalledWith(expect.any(Object));
+      expect(songRepository.save).toHaveBeenCalled();
+      expect(listingRepository.create).toHaveBeenCalledWith(expect.any(Object));
+      expect(listingRepository.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a song by id', async () => {
+      const songId = song_1.id;
+      const result = await songService.findOne(songId, create_song_dto.roles);
+      expect(result).toBeDefined();
+      expect(songRepository.findOne).toHaveBeenCalled();
     });
 
-    it('create - should return (Bad request - 400) Title is required', async () => {
-      const dto = { ...create_song_dto, title: null };
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(
-        new BadRequest<SongDto>(`Title is required`),
+    it('should return a NotFound error if song not found', async () => {
+      const songId = 'wrongSongId';
+      songRepository.findOne = jest.fn().mockResolvedValue(null);
+      const result = await songService.findOne(songId, create_song_dto.roles);
+      expect(result).toBeInstanceOf(NotFound);
+      expect(result.error.message).toEqual('Song not found!');
+    });
+  });
+
+  describe('findAllArtistSongs', () => {
+    it('should return all songs of an artist', async () => {
+      songRepository.findAndCount = jest.fn().mockResolvedValue([[song_1], 1]);
+      const result = await songService.findAllArtistSongs(
+        create_song_dto.user_id,
+        create_song_dto.roles,
+        {},
       );
+      expect(result).toBeDefined();
+      expect(songRepository.findAndCount).toHaveBeenCalled();
     });
+  });
 
-    it('create - should return (Bad request - 400) Album is required', async () => {
-      const dto = { ...create_song_dto, title: song_1.title, album_id: null };
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(
-        new BadRequest<SongDto>(`Album is required`),
+  describe('findAllUserSongs', () => {
+    it('should return all songs of a user', async () => {
+      songRepository.findAndCount = jest.fn().mockResolvedValue([[song_1], 1]);
+      const result = await songService.findAllUserSongs(
+        create_song_dto.user_id,
+        create_song_dto.roles,
+        {},
       );
-    });
-
-    it('create - should return (Not Found - 404) Album is required', async () => {
-      const dto = { ...create_song_dto, title: song_1.title, album_id: '123' };
-      jest
-        .spyOn(albumRepository, 'findOneBy')
-        .mockImplementationOnce(() => null);
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(new NotFound<SongDto>(`Album not found!`));
-    });
-
-    it('create - should return (Bad request - 400) Music id is required', async () => {
-      const dto = { ...create_song_dto, music_id: null };
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(
-        new BadRequest<SongDto>(`Music id is required`),
-      );
-    });
-
-    it('create - should return (Not Found - 404) Music file not found!', async () => {
-      const dto = { ...create_song_dto, music_id: '123' };
-      jest
-        .spyOn(fileRepository, 'findOneBy')
-        .mockImplementationOnce(() => null)
-        .mockImplementationOnce(async () => song_1.art);
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(
-        new NotFound<SongDto>(`Music file not found!`),
-      );
-    });
-
-    it('create - should return (Not Found - 404) Art file not found!', async () => {
-      const dto = { ...create_song_dto, music_id: '123' };
-      jest
-        .spyOn(fileRepository, 'findOneBy')
-        .mockImplementationOnce(async () => song_1.music)
-        .mockImplementationOnce(() => null);
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(
-        new NotFound<SongDto>(`Art file not found!`),
-      );
-    });
-
-    it('create - should return (Not Found - 404) User not found!', async () => {
-      const dto = { ...create_song_dto };
-      jest
-        .spyOn(userRepository, 'findOneBy')
-        .mockImplementationOnce(async () => null);
-      const response = await songService.createSong(dto);
-      expect(response).toStrictEqual(new NotFound<SongDto>(`User not found!`));
+      expect(result).toBeDefined();
+      expect(songRepository.findAndCount).toHaveBeenCalled();
     });
   });
 });

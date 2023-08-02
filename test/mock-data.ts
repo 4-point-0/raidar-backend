@@ -13,7 +13,7 @@ export const user_artist_1: Partial<User> = {
   first_name: 'Bob',
   last_name: 'Smith',
   email: 'bob@email.com',
-  roles: [Role.Artist],
+  roles: [Role.Artist, Role.User],
   provider: Provider.Google,
   provider_id: '123',
   created_at: new Date(),

@@ -11,7 +11,6 @@ describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
   let userRepository: Repository<User>;
-  let googleAuthService: GoogleOAuthService;
 
   const mockUser = {
     id: '1',
@@ -67,7 +66,6 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
-    googleAuthService = module.get<GoogleOAuthService>(GoogleOAuthService);
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
