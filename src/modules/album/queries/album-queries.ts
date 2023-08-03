@@ -1,10 +1,4 @@
-import { Like } from 'typeorm';
-
-export const findAllAlbumsQuery = (
-  take: number,
-  skip: number,
-  pka?: string,
-) => {
+export const findAllAlbumsQuery = (take: number, skip: number) => {
   return {
     relations: {
       cover: true,
@@ -20,7 +14,6 @@ export const findAllAlbumsQuery = (
     },
     take: take,
     skip: skip,
-    where: pka ? { pka: Like('%' + pka + '%') } : undefined,
   };
 };
 

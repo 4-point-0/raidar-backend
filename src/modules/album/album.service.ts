@@ -88,10 +88,9 @@ export class AlbumService {
       }
       const take = query.take || 10;
       const skip = query.skip || 0;
-      const pka = query.pka;
 
       const [result, total] = await this.albumRepository.findAndCount(
-        findAllAlbumsQuery(take, skip, pka),
+        findAllAlbumsQuery(take, skip),
       );
 
       return new ServiceResult<PaginatedDto<AlbumDto>>(
