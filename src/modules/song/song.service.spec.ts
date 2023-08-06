@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { album_1, song_1 } from '../../../test/mock-data';
 import { BadRequest, NotFound } from '../../helpers/response/errors';
 import { SongDto } from './dto/song.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('SongService', () => {
   let songService: SongService;
@@ -76,6 +77,17 @@ describe('SongService', () => {
           provide: ALBUM_REPOSITORY_TOKEN,
           useValue: {
             findOneBy: jest.fn().mockResolvedValue(album_1),
+          },
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'near-usd') {
+                return 1.5;
+              }
+              return null;
+            }),
           },
         },
         {
