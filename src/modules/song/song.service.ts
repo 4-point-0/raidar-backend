@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Song } from './song.entity';
@@ -27,6 +27,8 @@ import {
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { MIME_TYPE_WAV } from '../../common/constants';
+import { AlgoliaClient } from '../../helpers/algolia/algolia.client';
+import { mapSongToAlgoliaRecord } from './mappers/algolia.mapper';
 
 @Injectable()
 export class SongService {
@@ -43,6 +45,8 @@ export class SongService {
     private albumRepository: Repository<Album>,
     @InjectRepository(Listing)
     private listingRepository: Repository<Listing>,
+    @Inject('AlgoliaClient_songs')
+    private readonly algoliaClient: AlgoliaClient,
   ) {}
 
   async createSong(dto: CreateSongDto): Promise<ServiceResult<SongDto>> {
@@ -108,6 +112,9 @@ export class SongService {
       await this.listingRepository.save(listing);
 
       const song = await this.songRepository.findOne(findOneSong(new_song.id));
+
+      const algoliaRecord = mapSongToAlgoliaRecord(song);
+      await this.algoliaClient.indexRecord(algoliaRecord);
 
       return new ServiceResult<SongDto>(SongDto.fromEntity(song));
     } catch (error) {

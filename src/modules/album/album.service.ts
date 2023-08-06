@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Album } from './album.entity';
 import { Repository } from 'typeorm';
 import { CreateAlbumDto } from './dto/create-album.dto';
-import { ServiceResult } from 'src/helpers/response/result';
+import { ServiceResult } from '../../helpers/response/result';
 import {
   BadRequest,
   Forbidden,

@@ -39,6 +39,7 @@
     "@sendgrid/mail": "^7.7.0",
     "@types/passport-google-oauth20": "^2.0.11",
     "@types/uuid": "^9.0.2",
+    "algoliasearch": "^4.19.1",
     "aws-sdk": "^2.1413.0",
     "axios": "^1.4.0",
     "borsh": "^0.7.0",

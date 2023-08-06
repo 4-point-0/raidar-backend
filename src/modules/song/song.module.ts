@@ -7,10 +7,20 @@ import { File } from '../file/file.entity';
 import { Album } from '../album/album.entity';
 import { Listing } from '../listing/listing.entity';
 import { User } from '../user/user.entity';
+import { createAlgoliaClient } from 'src/helpers/algolia/algolia.client.provider';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Song, File, Album, User, Listing])],
-  providers: [SongService],
+  providers: [
+    SongService,
+    {
+      provide: 'AlgoliaClient_songs',
+      useFactory: (configService: ConfigService) =>
+        createAlgoliaClient(configService, 'dev_songs'),
+      inject: [ConfigService],
+    },
+  ],
   controllers: [SongController],
 })
 export class SongModule {}

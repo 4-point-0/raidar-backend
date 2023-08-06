@@ -1,92 +1,73 @@
-import { Repository } from 'typeorm';
-import { Song } from '../../song/song.entity';
 import { SongFiltersDto } from '../dto/songs.filter.dto';
 
-export const findAllMarketplaceArtistSongs = async (
-  songRepository: Repository<Song>,
-  query: SongFiltersDto,
-  take = 10,
-  skip = 0,
-): Promise<{ songs: Song[]; count: number }> => {
-  let qb = songRepository
-    .createQueryBuilder('song')
-    .leftJoinAndSelect('song.user', 'user')
-    .leftJoinAndSelect('song.album', 'album')
-    .leftJoinAndSelect('album.cover', 'cover')
-    .leftJoinAndSelect('song.music', 'music')
-    .leftJoinAndSelect('song.art', 'art')
-    .leftJoinAndSelect('song.listings', 'listings')
-    .leftJoinAndSelect('listings.seller', 'seller')
-    .leftJoinAndSelect('listings.buyer', 'buyer')
-    .where('buyer IS NULL');
+export const buildAlgoliaQueryForSongs = (
+  filters: SongFiltersDto,
+): {
+  filters: string;
+  hitsPerPage: number;
+  page: number;
+  facetFilters?: string[][];
+} => {
+  const take = filters.take || 10;
+  const skip = filters.skip || 0;
 
-  if (query.title) {
-    qb = qb.andWhere('song.title ILIKE :title', {
-      title: `%${query.title}%`,
-    });
+  const filtersArray = [];
+  const facetFiltersArray = [];
+
+  if (filters.minLength) {
+    filtersArray.push(`length >= ${filters.minLength}`);
   }
 
-  if (query.artist) {
-    qb = qb.andWhere('song.pka ILIKE :artist', {
-      artist: `%${query.artist}%`,
-    });
+  if (filters.maxLength) {
+    filtersArray.push(`length <= ${filters.maxLength}`);
   }
 
-  if (query.minLength) {
-    qb = qb.andWhere('song.length >= :minLength', {
-      minLength: query.minLength,
-    });
+  if (filters.genre) {
+    filtersArray.push(`genre:${filters.genre}`);
   }
 
-  if (query.maxLength) {
-    qb = qb.andWhere('song.length <= :maxLength', {
-      maxLength: query.maxLength,
-    });
+  if (filters.minBpm) {
+    filtersArray.push(`bpm >= ${filters.minBpm}`);
   }
 
-  if (query.genre) {
-    qb = qb.andWhere('song.genre ILIKE :genre', {
-      genre: `%${query.genre}%`,
-    });
+  if (filters.maxBpm) {
+    filtersArray.push(`bpm <= ${filters.maxBpm}`);
   }
 
-  if (query.mood) {
-    qb = qb.andWhere(':mood = ANY(song.mood)', {
-      mood: query.mood,
-    });
+  if (filters.instrumental !== undefined) {
+    filtersArray.push(`instrumental:${filters.instrumental}`);
   }
 
-  if (query.tags) {
-    qb = qb.andWhere(':tags = ANY(song.tags)', {
-      tags: query.tags,
-    });
+  if (filters.musical_key) {
+    filtersArray.push(`musical_key:${filters.musical_key}`);
   }
 
-  if (query.minBpm) {
-    qb = qb.andWhere('song.bpm >= :minBpm', {
-      minBpm: query.minBpm,
-    });
+  if (filters.mood) {
+    if (Array.isArray(filters.mood)) {
+      filters.mood.forEach((mood) => {
+        facetFiltersArray.push(['mood:' + mood]);
+      });
+    } else {
+      facetFiltersArray.push(['mood:' + filters.mood]);
+    }
   }
 
-  if (query.maxBpm) {
-    qb = qb.andWhere('song.bpm <= :maxBpm', {
-      maxBpm: query.maxBpm,
-    });
+  if (filters.tags) {
+    if (Array.isArray(filters.tags)) {
+      filters.tags.forEach((tag) => {
+        facetFiltersArray.push(['tags:' + tag]);
+      });
+    } else {
+      facetFiltersArray.push(['tags:' + filters.tags]);
+    }
   }
 
-  if (query.instrumental !== undefined) {
-    qb = qb.andWhere('song.instrumental = :instrumental', {
-      instrumental: query.instrumental,
-    });
-  }
+  const filtersString = filtersArray.join(' AND ');
 
-  if (query.musical_key) {
-    qb = qb.andWhere('song.musical_key ILIKE :musical_key', {
-      musical_key: `%${query.musical_key}%`,
-    });
-  }
-  qb = qb.skip(skip).take(take);
-  const [results, count] = await qb.getManyAndCount();
-
-  return { songs: results, count };
+  return {
+    filters: filtersString,
+    hitsPerPage: take,
+    page: skip / take,
+    facetFilters: facetFiltersArray.length > 0 ? facetFiltersArray : undefined,
+  };
 };
