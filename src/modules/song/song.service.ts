@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Song } from './song.entity';
@@ -27,6 +27,13 @@ import {
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { MIME_TYPE_WAV } from '../../common/constants';
+import { BuySongDto } from './dto/buy-song.dto';
+import { ListingDto } from '../listing/dto/listing.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nearAPI = require('near-api-js');
 
 @Injectable()
 export class SongService {
@@ -43,6 +50,7 @@ export class SongService {
     private albumRepository: Repository<Album>,
     @InjectRepository(Listing)
     private listingRepository: Repository<Listing>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async createSong(dto: CreateSongDto): Promise<ServiceResult<SongDto>> {
@@ -196,6 +204,43 @@ export class SongService {
     } catch (error) {
       this.logger.error('SongService - findAllUserSongs', error);
       return new ServerError<PaginatedDto<SongDto>>(`Can't get user songs`);
+    }
+  }
+
+  async buySong(dto: BuySongDto): Promise<ServiceResult<ListingDto>> {
+    try {
+      const listing = await this.listingRepository.findOne({
+        where: { song: { id: dto.songId } },
+        relations: ['seller'],
+      });
+
+      if (!listing) {
+        return new NotFound<ListingDto>(`Listing for song not found`);
+      }
+
+      const buyer = await this.userRepository.findOne({
+        where: { id: dto.buyerId },
+      });
+
+      if (!buyer) {
+        return new NotFound<ListingDto>(`Buyer not found!`);
+      }
+
+      listing.buyer = buyer;
+      listing.tx_hash = dto.txHash;
+
+      const near_usd = await this.cacheManager.get<string>('near-usd');
+      listing.sold_price = nearAPI.utils.format.parseNearAmount(
+        (listing.price / Number(near_usd)).toString(),
+      );
+
+      await this.listingRepository.save(listing);
+      const listingDto = ListingDto.fromEntity(listing);
+
+      return new ServiceResult<ListingDto>(listingDto);
+    } catch (error) {
+      this.logger.error('SongService - buySong', error);
+      return new ServerError<ListingDto>(`Can't purchase song`);
     }
   }
 }
