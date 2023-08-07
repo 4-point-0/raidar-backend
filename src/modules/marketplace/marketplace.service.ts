@@ -17,7 +17,7 @@ import { findAllMarketplaceArtistSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { validate } from 'uuid';
-import { findOneNotSoldSong, findOneSong } from '../song/queries/song.queries';
+import { findOneNotSoldSong } from '../song/queries/song.queries';
 
 @Injectable()
 export class MarketplaceService {

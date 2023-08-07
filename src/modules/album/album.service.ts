@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Album } from './album.entity';
 import { Repository } from 'typeorm';
 import { CreateAlbumDto } from './dto/create-album.dto';
-import { ServiceResult } from 'src/helpers/response/result';
+import { ServiceResult } from '../../helpers/response/result';
 import {
   BadRequest,
   Forbidden,
@@ -12,7 +12,7 @@ import {
 } from '../../helpers/response/errors';
 import { AlbumDto } from './dto/album.dto';
 import { File } from '../../modules/file/file.entity';
-import { Role } from 'src/common/enums/enum';
+import { Role } from '../../common/enums/enum';
 import {
   findAllAlbumsQuery,
   findAllArtistAlbumsQuery,
@@ -20,7 +20,7 @@ import {
 } from './queries/album-queries';
 import { AlbumFilterDto } from './dto/album-filter.dto';
 import { mapPaginatedAlbums } from './mappers/album.mappers';
-import { PaginatedDto } from 'src/common/pagination/paginated-dto';
+import { PaginatedDto } from '../../common/pagination/paginated-dto';
 
 @Injectable()
 export class AlbumService {
