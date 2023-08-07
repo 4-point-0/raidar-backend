@@ -93,13 +93,15 @@ export class AuthService {
     user: GoogleUserDto,
   ): Promise<ServiceResult<JwtTokenDto>> {
     try {
+      const userRole: Role =
+        user.email.split('@')[1] === '4pto.io' ? Role.Artist : Role.User;
       const newUser = this.userRepository.create({
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
         provider: user.provider,
         provider_id: user.provider_id,
-        roles: [Role.Artist],
+        roles: [userRole],
       });
       await this.userRepository.save(newUser);
 
