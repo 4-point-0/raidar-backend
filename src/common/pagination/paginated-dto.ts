@@ -1,3 +1,4 @@
+import { Type } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginatedDto<TData> {
@@ -37,6 +38,7 @@ export class PaginatedDto<TData> {
 
   @ApiProperty({
     type: 'array',
+    isArray: true,
   })
   results: TData[];
 }

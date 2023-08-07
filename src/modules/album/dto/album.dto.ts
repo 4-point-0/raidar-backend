@@ -13,7 +13,7 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
 
   @ApiProperty({
     type: String,
-    required: true,
+    required: false,
   })
   pka: string;
 

@@ -2,7 +2,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Song } from '../song.entity';
 import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
-import { AlbumDto } from '../../../modules/album/dto/album.dto';
 import { ListingDto } from '../../../modules/listing/dto/listing.dto';
 import { Listing } from '../../listing/listing.entity';
 
@@ -10,17 +9,13 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
     type: String,
   })
-  id: string;
-
-  @ApiProperty({
-    type: String,
-  })
   user_id: string;
 
   @ApiPropertyOptional({
-    type: AlbumDto,
+    type: String,
+    nullable: true,
   })
-  album?: AlbumDto;
+  album_id?: string;
 
   @ApiProperty({
     type: String,
@@ -138,7 +133,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     song.last_listing = dto.last_listing;
     song.music = dto.music;
     song.art = dto.art;
-    song.album = dto.album;
+    song.album_id = dto.album_id;
 
     return song;
   }
@@ -163,7 +158,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       pka: entity.pka,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
-      album: entity.album ? AlbumDto.fromEntityForSong(entity.album) : null,
+      album_id: entity.album ? entity.album.id : null,
       last_listing: ListingDto.fromEntity(
         entity.listings.sort((a: Listing, b: Listing) => {
           return b.created_at.getTime() - a.created_at.getTime();
@@ -192,7 +187,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       pka: entity.pka,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
-      album: entity.album ? AlbumDto.fromEntityForSong(entity.album) : null,
+      album_id: entity.album ? entity.album.id : null,
       last_listing: ListingDto.fromEntityForMarketplace(
         entity.listings.sort((a: Listing, b: Listing) => {
           return b.created_at.getTime() - a.created_at.getTime();
