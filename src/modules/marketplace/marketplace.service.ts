@@ -1,15 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Song } from '../song/song.entity';
 import { ServiceResult } from '../../helpers/response/result';
-import { BadRequest, ServerError } from '../../helpers/response/errors';
+import {
+  BadRequest,
+  NotFound,
+  ServerError,
+} from '../../helpers/response/errors';
 import { SongDto } from '../song/dto/song.dto';
-import { mapPaginatedSongsDto } from '../song/mappers/song.mappers';
+import { mapPaginatedSongsMarketplaceDto } from '../song/mappers/song.mappers';
 import { Role } from '../../common/enums/enum';
 import { findAllMarketplaceArtistSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
+import { validate } from 'uuid';
+import { findOneNotSoldSong, findOneSong } from '../song/queries/song.queries';
 
 @Injectable()
 export class MarketplaceService {
@@ -18,6 +26,7 @@ export class MarketplaceService {
   constructor(
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findAll(
@@ -58,12 +67,50 @@ export class MarketplaceService {
       const songs = result.songs;
       const total = result.count;
 
+      const near_usd = await this.cacheManager.get<string>('near-usd');
+
       return new ServiceResult<PaginatedDto<SongDto>>(
-        mapPaginatedSongsDto(songs, total, take, skip),
+        mapPaginatedSongsMarketplaceDto(
+          songs,
+          Number(near_usd),
+          total,
+          take,
+          skip,
+        ),
       );
     } catch (error) {
       this.logger.error('SongService - findAllMarketplaceArtistSongs', error);
       return new ServerError<PaginatedDto<SongDto>>(`Can't get artist songs`);
+    }
+  }
+
+  async findOneSong(
+    id: string,
+    roles: Role[],
+  ): Promise<ServiceResult<SongDto>> {
+    try {
+      if (![Role.Artist, Role.User].some((r) => roles.includes(r))) {
+        return new BadRequest<SongDto>(
+          `You don't have permission for this operation!`,
+        );
+      }
+
+      if (!validate(id)) {
+        return new NotFound<SongDto>(`Song not found!`);
+      }
+
+      const song = await this.songRepository.findOne(findOneNotSoldSong(id));
+
+      if (!song) {
+        return new NotFound<SongDto>(`Song not found!`);
+      }
+      const near_usd = await this.cacheManager.get<string>('near-usd');
+      return new ServiceResult<SongDto>(
+        SongDto.fromEntityForMarketplace(song, Number(near_usd)),
+      );
+    } catch (error) {
+      this.logger.error('SongService - findOneSong', error);
+      return new ServerError<SongDto>(`Can't get song`);
     }
   }
 }

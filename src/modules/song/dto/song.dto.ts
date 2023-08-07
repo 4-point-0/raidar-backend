@@ -171,4 +171,34 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       ),
     });
   }
+
+  public static fromEntityForMarketplace(entity: Song, near_price: number) {
+    return this.from({
+      id: entity.id,
+      user_id: entity.user.id,
+      title: entity.title,
+      length: entity.length,
+      genre: entity.genre,
+      mood: entity.mood,
+      tags: entity.tags,
+      bpm: entity.bpm,
+      instrumental: entity.instrumental,
+      languages: entity.languages,
+      vocal_ranges: entity.vocal_ranges,
+      musical_key: entity.musical_key,
+      recording_date: entity.recording_date,
+      recording_location: entity.recording_location,
+      recording_country: entity.recording_country,
+      pka: entity.pka,
+      music: FileDto.fromEntity(entity.music),
+      art: FileDto.fromEntity(entity.art),
+      album: entity.album ? AlbumDto.fromEntityForSong(entity.album) : null,
+      last_listing: ListingDto.fromEntityForMarketplace(
+        entity.listings.sort((a: Listing, b: Listing) => {
+          return b.created_at.getTime() - a.created_at.getTime();
+        })[0],
+        near_price,
+      ),
+    });
+  }
 }

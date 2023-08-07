@@ -12,8 +12,12 @@ import {
 } from '../../helpers/response/errors';
 import { AlbumDto } from './dto/album.dto';
 import { File } from '../../modules/file/file.entity';
-import { Role } from '../../common/enums/enum';
-import { findAllAlbumsQuery, findOneAlbumQuery } from './queries/album-queries';
+import { Role } from 'src/common/enums/enum';
+import {
+  findAllAlbumsQuery,
+  findAllArtistAlbumsQuery,
+  findOneAlbumQuery,
+} from './queries/album-queries';
 import { AlbumFilterDto } from './dto/album-filter.dto';
 import { mapPaginatedAlbums } from './mappers/album.mappers';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
@@ -91,6 +95,33 @@ export class AlbumService {
 
       const [result, total] = await this.albumRepository.findAndCount(
         findAllAlbumsQuery(take, skip),
+      );
+
+      return new ServiceResult<PaginatedDto<AlbumDto>>(
+        mapPaginatedAlbums(result, total, take, skip),
+      );
+    } catch (error) {
+      this.logger.error('AlbumService - findAll', error);
+      return new ServerError<PaginatedDto<AlbumDto>>(`Can't get albums`);
+    }
+  }
+
+  async findAllArtistAlbums(
+    roles: Role[],
+    creatorId: string,
+    query: AlbumFilterDto,
+  ): Promise<ServiceResult<PaginatedDto<AlbumDto>>> {
+    try {
+      if (!roles.includes(Role.Artist)) {
+        return new Forbidden<PaginatedDto<AlbumDto>>(
+          `You don't have permission for this operation!`,
+        );
+      }
+      const take = query.take || 10;
+      const skip = query.skip || 0;
+
+      const [result, total] = await this.albumRepository.findAndCount(
+        findAllArtistAlbumsQuery(take, skip, creatorId),
       );
 
       return new ServiceResult<PaginatedDto<AlbumDto>>(

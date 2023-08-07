@@ -29,6 +29,23 @@ import { AuthRequest } from '../../common/types/auth-request.type';
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
+  @Get('me')
+  @Auth(Role.Artist)
+  @UseFilters(new HttpExceptionFilter())
+  @ApiPaginatedResponse(AlbumDto)
+  async findAllArtistAlbums(
+    @Req() request: AuthRequest,
+    @Query() query: AlbumFilterDto,
+  ) {
+    return handle(
+      await this.albumService.findAllArtistAlbums(
+        request.user.roles,
+        request.user.id,
+        query,
+      ),
+    );
+  }
+
   @Post()
   @Auth(Role.Artist)
   @UseFilters(new HttpExceptionFilter())

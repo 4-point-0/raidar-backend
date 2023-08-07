@@ -10,6 +10,7 @@ import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
 import { File } from '../file/file.entity';
 import { Listing } from '../listing/listing.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('MarketplaceService', () => {
   let service: MarketplaceService;
@@ -22,6 +23,17 @@ describe('MarketplaceService', () => {
         {
           provide: getRepositoryToken(Song),
           useClass: Repository,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'near-usd') {
+                return 1.5;
+              }
+              return null;
+            }),
+          },
         },
       ],
     }).compile();
