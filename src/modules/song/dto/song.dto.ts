@@ -4,7 +4,7 @@ import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 import { AlbumDto } from '../../../modules/album/dto/album.dto';
 import { ListingDto } from '../../../modules/listing/dto/listing.dto';
-import { Listing } from 'src/modules/listing/listing.entity';
+import { Listing } from '../../listing/listing.entity';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({

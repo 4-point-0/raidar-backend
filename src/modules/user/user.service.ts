@@ -10,7 +10,7 @@ import { getRpcPostArguments } from '../../helpers/rpc/rpc-call-arguments';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ServiceResult } from 'src/helpers/response/result';
+import { ServiceResult } from '../../helpers/response/result';
 import { AddWalletDto } from './dto/add-wallet.dto';
 import {
   BadRequest,

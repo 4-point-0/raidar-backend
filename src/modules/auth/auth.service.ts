@@ -56,8 +56,8 @@ export class AuthService {
 
       const tokenInfoData = tokenInfo.data;
 
-      const user = await this.userRepository.findOneBy({
-        email: tokenInfoData.email,
+      const user = await this.userRepository.findOne({
+        where: { email: tokenInfoData.email },
       });
 
       if (!user) {
