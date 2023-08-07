@@ -12,7 +12,7 @@ import {
 } from '../../helpers/response/errors';
 import { AlbumDto } from './dto/album.dto';
 import { File } from '../../modules/file/file.entity';
-import { Role } from 'src/common/enums/enum';
+import { Role } from '../../common/enums/enum';
 import {
   findAllAlbumsQuery,
   findAllArtistAlbumsQuery,
