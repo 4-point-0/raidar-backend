@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AlbumCoverUnique1691323450024 implements MigrationInterface {
-  name = 'AlbumCoverUnique1691323450024';
+export class ListingSoldPrice1691495666743 implements MigrationInterface {
+  name = 'ListingSoldPrice1691495666743';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX "public"."IDX_UNIQUE_COVER_ID"`);
