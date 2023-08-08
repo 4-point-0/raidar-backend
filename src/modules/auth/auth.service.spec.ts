@@ -92,4 +92,40 @@ describe('AuthService', () => {
     expect(result).toHaveProperty('data');
     expect(result.data.token).toBe('jwt_token');
   });
+
+  describe('registerGoolgeUser', () => {
+    it('should assign Artist role for 4pto.io domain', async () => {
+      const inputUser = {
+        email: 'test@4pto.io',
+        first_name: 'Pero',
+        last_name: 'Peric',
+        provider: Provider.Google,
+        provider_id: 'providerId',
+      };
+
+      const result = await service.registerGoolgeUser(inputUser);
+
+      expect(userRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ roles: [Role.Artist] }),
+      );
+      expect(result.data.token).toBe('jwt_token');
+    });
+
+    it('should assign User role for other domains', async () => {
+      const inputUser = {
+        email: 'test@example.com',
+        first_name: 'Pero',
+        last_name: 'Peric',
+        provider: Provider.Google,
+        provider_id: 'providerId',
+      };
+
+      const result = await service.registerGoolgeUser(inputUser);
+
+      expect(userRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ roles: [Role.User] }),
+      );
+      expect(result.data.token).toBe('jwt_token');
+    });
+  });
 });
