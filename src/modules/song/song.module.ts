@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
     {
       provide: 'AlgoliaClient_songs',
       useFactory: (configService: ConfigService) =>
-        createAlgoliaClient(configService, 'dev_songs'),
+        createAlgoliaClient(configService),
       inject: [ConfigService],
     },
   ],
