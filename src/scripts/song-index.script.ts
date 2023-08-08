@@ -6,8 +6,13 @@ import { User } from '../modules/user/user.entity';
 import { Listing } from '../modules/listing/listing.entity';
 import { Album } from '../modules/album/album.entity';
 import { File } from '../modules/file/file.entity';
+import { existsSync } from 'fs';
 
-dotenv.config();
+dotenv.config({
+  path: existsSync(`.env.${process.env.MODE}`)
+    ? `.env.${process.env.MODE}`
+    : '.env',
+});
 
 const run = async () => {
   const connection = await createConnection({

@@ -17,7 +17,7 @@ import { buildAlgoliaQueryForSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { validate } from 'uuid';
-import { findOneNotSoldSong, findOneSong } from '../song/queries/song.queries';
+import { findOneNotSoldSong } from '../song/queries/song.queries';
 import { AlgoliaClient } from '../../helpers/algolia/algolia.client';
 
 @Injectable()
