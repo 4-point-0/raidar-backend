@@ -4,6 +4,7 @@ import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 import { ListingDto } from '../../../modules/listing/dto/listing.dto';
 import { Listing } from '../../listing/listing.entity';
+import { SongAlbumDto } from './song-album.dto';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
@@ -12,10 +13,10 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   user_id: string;
 
   @ApiPropertyOptional({
-    type: String,
+    type: SongAlbumDto,
     nullable: true,
   })
-  album_id?: string;
+  album?: SongAlbumDto;
 
   @ApiProperty({
     type: String,
@@ -133,7 +134,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     song.last_listing = dto.last_listing;
     song.music = dto.music;
     song.art = dto.art;
-    song.album_id = dto.album_id;
+    song.album = dto.album;
 
     return song;
   }
@@ -158,7 +159,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       pka: entity.pka,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
-      album_id: entity.album ? entity.album.id : null,
+      album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
       last_listing: ListingDto.fromEntity(
         entity.listings.sort((a: Listing, b: Listing) => {
           return b.created_at.getTime() - a.created_at.getTime();
@@ -187,7 +188,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       pka: entity.pka,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
-      album_id: entity.album ? entity.album.id : null,
+      album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
       last_listing: ListingDto.fromEntityForMarketplace(
         entity.listings.sort((a: Listing, b: Listing) => {
           return b.created_at.getTime() - a.created_at.getTime();
