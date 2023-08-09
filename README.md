@@ -58,8 +58,11 @@ In config folder there is `configuraton.ts` which is used to load env variables 
 - `mode` - variable is used to determine on which environment is app running
 - `port` - is defining on which port is app used
 - `db` - is defining all database fields
-- `jwt` - is defining all variables regarding jwt token
-- `google` - is defining all variables regarding google app
+- `jwt` - is defining all variables for jwt token
+- `google` - is defining all variables for google app
+- `aws` - is defining all variables for aws server
+- `sendgrid` - is defining all variables for sendgrid email provider
+- `algolia` - is defining all variables for algolia search app
 
 There is also `valdiation.ts` file which is used for validating env variables.
 
@@ -122,6 +125,7 @@ $ yarn test:cov
 ### Typeorm
 
 - use script `migration:generate` to generate new migration, just change name at the end of script for example `src/migrations/user-entity`
+- use script `migration:create` to create empty migration, just change name at the end of script for example `src/migrations/file-entity`
 - use script `migration:run` to apply current model changes in database
 - use script `migration:revert` to revert last db changes
 
@@ -153,7 +157,7 @@ The REST API can be accessed at `http://{host}:{port}/api/v1/{endpoint}`.
 
 Where `{host}` is the hostname of your server and `{port}` is the port on which the API is running. The `{endpoint}` is the specific endpoint you are attempting to access.
 
-- Check api specification on `http://{host}:{port}/swagger`
+- There are 2 swagger api specifications `http://{host}:{port}/swagger` used for user/artist APIs and `http://{host}:{port}/swagger-admin` used for admin APIs.
 
 ## Nest docs
 
