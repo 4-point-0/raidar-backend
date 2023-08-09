@@ -45,4 +45,7 @@ export class Listing extends BaseEntity {
     nullable: false,
   })
   price: number;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  sold_price: string;
 }

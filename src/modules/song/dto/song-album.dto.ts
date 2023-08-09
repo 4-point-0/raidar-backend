@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Album } from '../album.entity';
 import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
-import { SongDto } from '../../../modules/song/dto/song.dto';
+import { Album } from '../../../modules/album/album.entity';
 
-export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
+export class SongAlbumDto extends BaseDto implements Readonly<SongAlbumDto> {
   @ApiProperty({
     type: String,
     required: true,
@@ -20,16 +19,12 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
   @ApiProperty({ type: FileDto })
   cover: FileDto;
 
-  @ApiProperty({ type: SongDto, isArray: true })
-  songs: SongDto[];
-
-  static from(album: Partial<AlbumDto>): AlbumDto {
-    const albumDto = new AlbumDto();
+  static from(album: Partial<SongAlbumDto>): SongAlbumDto {
+    const albumDto = new SongAlbumDto();
     albumDto.id = album.id;
     albumDto.title = album.title;
     albumDto.pka = album.pka;
     albumDto.cover = album.cover;
-    albumDto.songs = album.songs;
     albumDto.created_at = album.created_at;
     albumDto.updated_at = album.updated_at;
     albumDto.created_by_id = album.created_by_id;
@@ -43,9 +38,6 @@ export class AlbumDto extends BaseDto implements Readonly<AlbumDto> {
       title: entity.title,
       pka: entity.pka,
       cover: FileDto.fromEntity(entity.cover),
-      songs: entity.songs
-        ? entity.songs.map((song) => SongDto.fromEntity(song))
-        : [],
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,
