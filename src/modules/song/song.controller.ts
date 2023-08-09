@@ -22,6 +22,8 @@ import { SongDto } from './dto/song.dto';
 import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-response';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
+import { BuySongDto } from './dto/buy-song.dto';
+import { ListingDto } from '../listing/dto/listing.dto';
 
 @ApiTags('song')
 @Controller('song')
@@ -80,5 +82,13 @@ export class SongController {
         query,
       ),
     );
+  }
+
+  @Post('buy')
+  @UseFilters(new HttpExceptionFilter())
+  @Auth(Role.User)
+  @CommonApiResponse(ListingDto)
+  async buySong(@Body() dto: BuySongDto) {
+    return handle(await this.songService.buySong(dto));
   }
 }
