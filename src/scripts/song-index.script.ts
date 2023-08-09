@@ -21,7 +21,7 @@ const run = async () => {
     port: parseInt(process.env.DATABASE_PORT, 10),
     username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_DB,
+    database: process.env.DATABASE_NAME,
     entities: [Song, User, Listing, Album, File],
   });
 
