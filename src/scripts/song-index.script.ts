@@ -27,7 +27,7 @@ const run = async () => {
 
   const songRepository = connection.getRepository(Song);
   const songs = await songRepository.find();
-  const indexName = `${process.env.MODE}_songs`;
+  const indexName = `${process.env.ALGOLIA_INDEX_NAME}`;
   const algoliaClient = new AlgoliaClient(
     process.env.ALGOLIA_APPLICATION_ID,
     process.env.ALGOLIA_API_KEY,
