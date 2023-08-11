@@ -1,6 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Song } from '../song/song.entity';
@@ -11,13 +9,13 @@ import {
   ServerError,
 } from '../../helpers/response/errors';
 import { SongDto } from '../song/dto/song.dto';
-import { mapPaginatedSongsMarketplaceDto } from '../song/mappers/song.mappers';
 import { Role } from '../../common/enums/enum';
 import { findAllMarketplaceArtistSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { validate } from 'uuid';
 import { findOneNotSoldSong } from '../song/queries/song.queries';
+import { mapPaginatedSongsDto } from '../song/mappers/song.mappers';
 
 @Injectable()
 export class MarketplaceService {
@@ -26,7 +24,6 @@ export class MarketplaceService {
   constructor(
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findAll(
@@ -67,16 +64,8 @@ export class MarketplaceService {
       const songs = result.songs;
       const total = result.count;
 
-      const near_usd = await this.cacheManager.get<string>('near-usd');
-
       return new ServiceResult<PaginatedDto<SongDto>>(
-        mapPaginatedSongsMarketplaceDto(
-          songs,
-          Number(near_usd),
-          total,
-          take,
-          skip,
-        ),
+        mapPaginatedSongsDto(songs, total, take, skip),
       );
     } catch (error) {
       this.logger.error('SongService - findAllMarketplaceArtistSongs', error);
@@ -104,10 +93,7 @@ export class MarketplaceService {
       if (!song) {
         return new NotFound<SongDto>(`Song not found!`);
       }
-      const near_usd = await this.cacheManager.get<string>('near-usd');
-      return new ServiceResult<SongDto>(
-        SongDto.fromEntityForMarketplace(song, Number(near_usd)),
-      );
+      return new ServiceResult<SongDto>(SongDto.fromEntity(song));
     } catch (error) {
       this.logger.error('SongService - findOneSong', error);
       return new ServerError<SongDto>(`Can't get song`);

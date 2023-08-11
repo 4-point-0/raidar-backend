@@ -6,10 +6,6 @@ export const findAllAlbumsQuery = (take: number, skip: number) => {
         user: true,
         music: true,
         art: true,
-        licences: {
-          buyer: true,
-          seller: true,
-        },
       },
     },
     take: take,
@@ -29,10 +25,6 @@ export const findAllArtistAlbumsQuery = (
         user: true,
         music: true,
         art: true,
-        licences: {
-          buyer: true,
-          seller: true,
-        },
       },
     },
     take: take,
@@ -52,10 +44,6 @@ export const findOneAlbumQuery = (id: string) => {
         user: true,
         music: true,
         art: true,
-        licences: {
-          buyer: true,
-          seller: true,
-        },
       },
     },
   };

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserDto } from '../../user/dto/user.dto';
 import { Licence } from '../licence.entity';
 import { BaseDto } from '../../../common/dto/base.dto';
@@ -27,19 +27,14 @@ export class LicenceDto extends BaseDto implements Readonly<LicenceDto> {
   tx_hash: string;
 
   @ApiProperty({
-    type: Number,
-  })
-  price: number;
-
-  @ApiProperty({
     type: String,
   })
-  price_in_near: string;
+  sold_price: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
   })
-  price_in_near_formatted: string;
+  sold_price_in_near_formatted?: string;
 
   public static from(dto: Partial<LicenceDto>) {
     const licence = new LicenceDto();
@@ -47,9 +42,8 @@ export class LicenceDto extends BaseDto implements Readonly<LicenceDto> {
     licence.seller = dto.seller;
     licence.buyer = dto.buyer;
     licence.tx_hash = dto.tx_hash;
-    licence.price = dto.price;
-    licence.price_in_near = dto.price_in_near;
-    licence.price_in_near_formatted = dto.price_in_near_formatted;
+    licence.sold_price = dto.sold_price;
+    licence.sold_price_in_near_formatted = dto.sold_price_in_near_formatted;
     licence.created_at = dto.created_at;
     licence.updated_at = dto.updated_at;
     licence.created_by_id = dto.created_by_id;
@@ -63,7 +57,6 @@ export class LicenceDto extends BaseDto implements Readonly<LicenceDto> {
       seller: UserDto.fromEntity(entity.seller),
       buyer: entity.buyer ? UserDto.fromEntity(entity.buyer) : null,
       tx_hash: entity.tx_hash,
-      price: entity.price,
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,
@@ -71,19 +64,16 @@ export class LicenceDto extends BaseDto implements Readonly<LicenceDto> {
     });
   }
 
-  public static fromEntityForMarketplace(entity: Licence, near_price: number) {
-    const parsed_amount = nearAPI.utils.format.parseNearAmount(
-      (entity.price / near_price).toString(),
-    );
+  public static fromEntityForUserSongs(entity: Licence) {
     return this.from({
       id: entity.id,
       seller: UserDto.fromEntity(entity.seller),
       buyer: entity.buyer ? UserDto.fromEntity(entity.buyer) : null,
       tx_hash: entity.tx_hash,
-      price: entity.price,
-      price_in_near: parsed_amount,
-      price_in_near_formatted:
-        nearAPI.utils.format.formatNearAmount(parsed_amount),
+      sold_price: entity.sold_price,
+      sold_price_in_near_formatted: nearAPI.utils.format.formatNearAmount(
+        entity.sold_price,
+      ),
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,

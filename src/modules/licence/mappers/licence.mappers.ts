@@ -3,12 +3,12 @@ import { User } from '../../user/user.entity';
 import { Licence } from '../licence.entity';
 
 export const createLicenceMapper = (
-  price: number,
+  sold_price: string,
   song: Song,
   user: User,
 ): Partial<Licence> => {
   return {
-    price: price,
+    sold_price: sold_price,
     song: song,
     seller: user,
   };

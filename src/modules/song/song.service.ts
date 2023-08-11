@@ -14,9 +14,12 @@ import { SongDto } from './dto/song.dto';
 import { File } from '../file/file.entity';
 import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
-import { createSongMapper, mapPaginatedSongsDto } from './mappers/song.mappers';
+import {
+  createSongMapper,
+  mapPaginatedSongsDto,
+  mapPaginatedUserSongsDto,
+} from './mappers/song.mappers';
 import { Licence } from '../licence/licence.entity';
-import { createLicenceMapper } from '../licence/mappers/licence.mappers';
 import { Role } from '../../common/enums/enum';
 import { validate } from 'uuid';
 import {
@@ -67,6 +70,10 @@ export class SongService {
         return new BadRequest<SongDto>(`Album is required`);
       }
 
+      if (!dto.price) {
+        return new BadRequest<SongDto>(`Price is required`);
+      }
+
       const album = await this.albumRepository.findOneBy({ id: dto.album_id });
 
       if (!album) {
@@ -108,12 +115,6 @@ export class SongService {
       );
 
       await this.songRepository.save(new_song);
-
-      const licence = this.licenceRepository.create(
-        createLicenceMapper(dto.price, new_song, user),
-      );
-
-      await this.licenceRepository.save(licence);
 
       const song = await this.songRepository.findOne(findOneSong(new_song.id));
 
@@ -197,9 +198,8 @@ export class SongService {
       const [result, total] = await this.songRepository.findAndCount(
         findAllUserSongs(title, user_id, take, skip),
       );
-
       return new ServiceResult<PaginatedDto<SongDto>>(
-        mapPaginatedSongsDto(result, total, take, skip),
+        mapPaginatedUserSongsDto(result, total, take, skip),
       );
     } catch (error) {
       this.logger.error('SongService - findAllUserSongs', error);
@@ -209,13 +209,13 @@ export class SongService {
 
   async buySong(dto: BuySongDto): Promise<ServiceResult<LicenceDto>> {
     try {
-      const licence = await this.licenceRepository.findOne({
-        where: { song: { id: dto.songId } },
-        relations: ['seller'],
+      const song = await this.songRepository.findOne({
+        where: { id: dto.songId },
+        relations: ['user'],
       });
 
-      if (!licence) {
-        return new NotFound<LicenceDto>(`licence for song not found`);
+      if (!song) {
+        return new NotFound<LicenceDto>(`Song not found`);
       }
 
       const buyer = await this.userRepository.findOne({
@@ -226,17 +226,38 @@ export class SongService {
         return new NotFound<LicenceDto>(`Buyer not found!`);
       }
 
+      const existingLicence = await this.licenceRepository.findOne({
+        where: { song: { id: song.id }, buyer: { id: buyer.id } },
+      });
+
+      if (existingLicence) {
+        return new BadRequest<LicenceDto>(
+          `Buyer already owns a licence for this song!`,
+        );
+      }
+
+      const seller = await this.userRepository.findOne({
+        where: { id: song.user.id },
+      });
+
+      if (!seller) {
+        return new NotFound<LicenceDto>(`Seller not found!`);
+      }
+
+      const licence = this.licenceRepository.create();
+      licence.song = song;
+      licence.seller = seller;
       licence.buyer = buyer;
       licence.tx_hash = dto.txHash;
 
       const near_usd = await this.cacheManager.get<string>('near-usd');
       licence.sold_price = nearAPI.utils.format.parseNearAmount(
-        (licence.price / Number(near_usd)).toString(),
+        (song.price / Number(near_usd)).toString(),
       );
 
       await this.licenceRepository.save(licence);
-      const licenceDto = LicenceDto.fromEntity(licence);
 
+      const licenceDto = LicenceDto.fromEntity(licence);
       return new ServiceResult<LicenceDto>(licenceDto);
     } catch (error) {
       this.logger.error('SongService - buySong', error);

@@ -32,6 +32,7 @@ export const createSongMapper = (
     recording_country: dto.recording_country,
     recording_location: dto.recording_location,
     pka: dto.pka,
+    price: dto.price,
   };
 };
 
@@ -55,16 +56,16 @@ export const mapPaginatedSongsDto = (
   };
 };
 
-export const mapPaginatedSongsMarketplaceDto = (
+export const mapPaginatedUserSongsDto = (
   songs: Song[],
-  near_price: number,
   total: number,
   take?: number,
   skip?: number,
 ): PaginatedDto<SongDto> => {
   const songDtos: SongDto[] = [];
   for (const song of songs) {
-    songDtos.push(SongDto.fromEntityForMarketplace(song, near_price));
+    const songDto = SongDto.fromEntityWithLicence(song);
+    songDtos.push(songDto);
   }
 
   return {

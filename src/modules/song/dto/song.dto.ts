@@ -2,9 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Song } from '../song.entity';
 import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
-import { LicenceDto } from '../../licence/dto/licence.dto';
-import { Licence } from '../../licence/licence.entity';
 import { SongAlbumDto } from './song-album.dto';
+import { LicenceDto } from '../../../modules/licence/dto/licence.dto';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
@@ -108,10 +107,16 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   pka: string;
 
+  @ApiProperty({
+    type: String,
+  })
+  price: number;
+
   @ApiPropertyOptional({
     type: LicenceDto,
+    nullable: true,
   })
-  last_licence?: LicenceDto;
+  licence?: LicenceDto;
 
   public static from(dto: Partial<SongDto>) {
     const song = new SongDto();
@@ -131,10 +136,10 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     song.recording_location = dto.recording_location;
     song.recording_country = dto.recording_country;
     song.pka = dto.pka;
-    song.last_licence = dto.last_licence;
     song.music = dto.music;
     song.art = dto.art;
     song.album = dto.album;
+    song.price = dto.price;
 
     return song;
   }
@@ -157,18 +162,14 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       recording_location: entity.recording_location,
       recording_country: entity.recording_country,
       pka: entity.pka,
+      price: entity.price,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
-      last_licence: LicenceDto.fromEntity(
-        entity.licences.sort((a: Licence, b: Licence) => {
-          return b.created_at.getTime() - a.created_at.getTime();
-        })[0],
-      ),
     });
   }
 
-  public static fromEntityForMarketplace(entity: Song, near_price: number) {
+  public static fromEntityWithLicence(entity: Song) {
     return this.from({
       id: entity.id,
       user_id: entity.user.id,
@@ -186,15 +187,12 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       recording_location: entity.recording_location,
       recording_country: entity.recording_country,
       pka: entity.pka,
+      price: entity.price,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
+      //Ovaj LicenceDto.fromEntityForUserSongs vrati dobru vrijednost ali cim izade van se licence izgubi
+      licence: LicenceDto.fromEntityForUserSongs(entity.licences[0]),
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
-      last_licence: LicenceDto.fromEntityForMarketplace(
-        entity.licences.sort((a: Licence, b: Licence) => {
-          return b.created_at.getTime() - a.created_at.getTime();
-        })[0],
-        near_price,
-      ),
     });
   }
 }

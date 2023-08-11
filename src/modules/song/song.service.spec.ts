@@ -35,7 +35,7 @@ describe('SongService', () => {
     genre: song_1.genre,
     instrumental: song_1.instrumental,
     mood: song_1.mood,
-    price: song_1.licences[0].price,
+    price: song_1.price,
     languages: song_1.languages,
     tags: song_1.tags,
     length: song_1.length,
@@ -129,8 +129,6 @@ describe('SongService', () => {
       expect(result).toBeDefined();
       expect(songRepository.create).toHaveBeenCalledWith(expect.any(Object));
       expect(songRepository.save).toHaveBeenCalled();
-      expect(licenceRepository.create).toHaveBeenCalledWith(expect.any(Object));
-      expect(licenceRepository.save).toHaveBeenCalled();
     });
   });
 

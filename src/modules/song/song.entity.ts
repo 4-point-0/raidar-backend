@@ -100,4 +100,12 @@ export class Song extends BaseEntity {
 
   @OneToMany(() => Licence, (licence) => licence.song)
   licences: Licence[];
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+  })
+  price: number;
 }

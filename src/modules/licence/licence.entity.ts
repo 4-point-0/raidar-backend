@@ -38,14 +38,6 @@ export class Licence extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   public tx_hash: string;
 
-  @Column({
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    nullable: false,
-  })
-  price: number;
-
   @Column({ type: 'varchar', length: 255, nullable: true })
   sold_price: string;
 }
