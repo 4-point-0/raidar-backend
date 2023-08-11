@@ -2,8 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Song } from '../song.entity';
 import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
-import { ListingDto } from '../../../modules/listing/dto/listing.dto';
-import { Listing } from '../../listing/listing.entity';
+import { LicenceDto } from '../../licence/dto/licence.dto';
+import { Licence } from '../../licence/licence.entity';
 import { SongAlbumDto } from './song-album.dto';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
@@ -109,9 +109,9 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   pka: string;
 
   @ApiPropertyOptional({
-    type: ListingDto,
+    type: LicenceDto,
   })
-  last_listing?: ListingDto;
+  last_licence?: LicenceDto;
 
   public static from(dto: Partial<SongDto>) {
     const song = new SongDto();
@@ -131,7 +131,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     song.recording_location = dto.recording_location;
     song.recording_country = dto.recording_country;
     song.pka = dto.pka;
-    song.last_listing = dto.last_listing;
+    song.last_licence = dto.last_licence;
     song.music = dto.music;
     song.art = dto.art;
     song.album = dto.album;
@@ -160,8 +160,8 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
-      last_listing: ListingDto.fromEntity(
-        entity.listings.sort((a: Listing, b: Listing) => {
+      last_licence: LicenceDto.fromEntity(
+        entity.licences.sort((a: Licence, b: Licence) => {
           return b.created_at.getTime() - a.created_at.getTime();
         })[0],
       ),
@@ -189,8 +189,8 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
-      last_listing: ListingDto.fromEntityForMarketplace(
-        entity.listings.sort((a: Listing, b: Listing) => {
+      last_licence: LicenceDto.fromEntityForMarketplace(
+        entity.licences.sort((a: Licence, b: Licence) => {
           return b.created_at.getTime() - a.created_at.getTime();
         })[0],
         near_price,

@@ -9,7 +9,7 @@ import * as MarketplaceQueries from './queries/marketplace.queries';
 import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
 import { File } from '../file/file.entity';
-import { Listing } from '../listing/listing.entity';
+import { Licence } from '../licence/licence.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('MarketplaceService', () => {
@@ -124,8 +124,8 @@ describe('MarketplaceService', () => {
             url_expiry: new Date('2025-01-01T00:00:00Z'),
           }),
           pka: 'Test song 1 pka',
-          listings: [
-            Object.assign(new Listing(), {
+          licences: [
+            Object.assign(new Licence(), {
               id: '1',
               seller: mockUser,
               buyer: mockUser,

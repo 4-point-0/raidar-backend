@@ -15,8 +15,8 @@ import { File } from '../file/file.entity';
 import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
 import { createSongMapper, mapPaginatedSongsDto } from './mappers/song.mappers';
-import { Listing } from '../listing/listing.entity';
-import { createListingMapper } from '../listing/mappers/listing.mappers';
+import { Licence } from '../licence/licence.entity';
+import { createLicenceMapper } from '../licence/mappers/licence.mappers';
 import { Role } from '../../common/enums/enum';
 import { validate } from 'uuid';
 import {
@@ -28,7 +28,7 @@ import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { MIME_TYPE_WAV } from '../../common/constants';
 import { BuySongDto } from './dto/buy-song.dto';
-import { ListingDto } from '../listing/dto/listing.dto';
+import { LicenceDto } from '../licence/dto/licence.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -48,8 +48,8 @@ export class SongService {
     private userRepository: Repository<User>,
     @InjectRepository(Album)
     private albumRepository: Repository<Album>,
-    @InjectRepository(Listing)
-    private listingRepository: Repository<Listing>,
+    @InjectRepository(Licence)
+    private licenceRepository: Repository<Licence>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -109,11 +109,11 @@ export class SongService {
 
       await this.songRepository.save(new_song);
 
-      const listing = this.listingRepository.create(
-        createListingMapper(dto.price, new_song, user),
+      const licence = this.licenceRepository.create(
+        createLicenceMapper(dto.price, new_song, user),
       );
 
-      await this.listingRepository.save(listing);
+      await this.licenceRepository.save(licence);
 
       const song = await this.songRepository.findOne(findOneSong(new_song.id));
 
@@ -207,15 +207,15 @@ export class SongService {
     }
   }
 
-  async buySong(dto: BuySongDto): Promise<ServiceResult<ListingDto>> {
+  async buySong(dto: BuySongDto): Promise<ServiceResult<LicenceDto>> {
     try {
-      const listing = await this.listingRepository.findOne({
+      const licence = await this.licenceRepository.findOne({
         where: { song: { id: dto.songId } },
         relations: ['seller'],
       });
 
-      if (!listing) {
-        return new NotFound<ListingDto>(`Listing for song not found`);
+      if (!licence) {
+        return new NotFound<LicenceDto>(`licence for song not found`);
       }
 
       const buyer = await this.userRepository.findOne({
@@ -223,24 +223,24 @@ export class SongService {
       });
 
       if (!buyer) {
-        return new NotFound<ListingDto>(`Buyer not found!`);
+        return new NotFound<LicenceDto>(`Buyer not found!`);
       }
 
-      listing.buyer = buyer;
-      listing.tx_hash = dto.txHash;
+      licence.buyer = buyer;
+      licence.tx_hash = dto.txHash;
 
       const near_usd = await this.cacheManager.get<string>('near-usd');
-      listing.sold_price = nearAPI.utils.format.parseNearAmount(
-        (listing.price / Number(near_usd)).toString(),
+      licence.sold_price = nearAPI.utils.format.parseNearAmount(
+        (licence.price / Number(near_usd)).toString(),
       );
 
-      await this.listingRepository.save(listing);
-      const listingDto = ListingDto.fromEntity(listing);
+      await this.licenceRepository.save(licence);
+      const licenceDto = LicenceDto.fromEntity(licence);
 
-      return new ServiceResult<ListingDto>(listingDto);
+      return new ServiceResult<LicenceDto>(licenceDto);
     } catch (error) {
       this.logger.error('SongService - buySong', error);
-      return new ServerError<ListingDto>(`Can't purchase song`);
+      return new ServerError<LicenceDto>(`Can't purchase song`);
     }
   }
 }

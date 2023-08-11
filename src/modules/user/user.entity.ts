@@ -8,7 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Song } from '../song/song.entity';
-import { Listing } from '../listing/listing.entity';
+import { Licence } from '../licence/licence.entity';
 
 @Entity()
 export class User {
@@ -49,11 +49,11 @@ export class User {
   @OneToMany(() => Song, (song) => song.user)
   songs: Song[];
 
-  @OneToMany(() => Listing, (listing) => listing.seller)
-  listings_sold: Listing[];
+  @OneToMany(() => Licence, (licence) => licence.seller)
+  licences_sold: Licence[];
 
-  @OneToMany(() => Listing, (listing) => listing.buyer)
-  listings_purchased: Listing[];
+  @OneToMany(() => Licence, (licence) => licence.buyer)
+  licences_purchased: Licence[];
 
   @CreateDateColumn({ type: 'timestamp', nullable: false })
   public created_at: Date;

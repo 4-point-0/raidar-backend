@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from '../../user/dto/user.dto';
-import { Listing } from '../listing.entity';
+import { Licence } from '../licence.entity';
 import { BaseDto } from '../../../common/dto/base.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
 
-export class ListingDto extends BaseDto implements Readonly<ListingDto> {
+export class LicenceDto extends BaseDto implements Readonly<LicenceDto> {
   @ApiProperty({
     type: String,
   })
@@ -41,23 +41,23 @@ export class ListingDto extends BaseDto implements Readonly<ListingDto> {
   })
   price_in_near_formatted: string;
 
-  public static from(dto: Partial<ListingDto>) {
-    const listing = new ListingDto();
-    listing.id = dto.id;
-    listing.seller = dto.seller;
-    listing.buyer = dto.buyer;
-    listing.tx_hash = dto.tx_hash;
-    listing.price = dto.price;
-    listing.price_in_near = dto.price_in_near;
-    listing.price_in_near_formatted = dto.price_in_near_formatted;
-    listing.created_at = dto.created_at;
-    listing.updated_at = dto.updated_at;
-    listing.created_by_id = dto.created_by_id;
-    listing.updated_by_id = dto.updated_by_id;
-    return listing;
+  public static from(dto: Partial<LicenceDto>) {
+    const licence = new LicenceDto();
+    licence.id = dto.id;
+    licence.seller = dto.seller;
+    licence.buyer = dto.buyer;
+    licence.tx_hash = dto.tx_hash;
+    licence.price = dto.price;
+    licence.price_in_near = dto.price_in_near;
+    licence.price_in_near_formatted = dto.price_in_near_formatted;
+    licence.created_at = dto.created_at;
+    licence.updated_at = dto.updated_at;
+    licence.created_by_id = dto.created_by_id;
+    licence.updated_by_id = dto.updated_by_id;
+    return licence;
   }
 
-  public static fromEntity(entity: Listing) {
+  public static fromEntity(entity: Licence) {
     return this.from({
       id: entity.id,
       seller: UserDto.fromEntity(entity.seller),
@@ -71,7 +71,7 @@ export class ListingDto extends BaseDto implements Readonly<ListingDto> {
     });
   }
 
-  public static fromEntityForMarketplace(entity: Listing, near_price: number) {
+  public static fromEntityForMarketplace(entity: Licence, near_price: number) {
     const parsed_amount = nearAPI.utils.format.parseNearAmount(
       (entity.price / near_price).toString(),
     );

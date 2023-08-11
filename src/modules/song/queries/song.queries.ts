@@ -8,24 +8,24 @@ export const findOneSong = (id: string) => {
       'album.cover',
       'music',
       'art',
-      'listings',
-      'listings.seller',
-      'listings.buyer',
+      'licences',
+      'licences.seller',
+      'licences.buyer',
     ],
   };
 };
 
 export const findOneNotSoldSong = (id: string) => {
   return {
-    where: { id, listings: { buyer: IsNull() } },
+    where: { id, licences: { buyer: IsNull() } },
     relations: [
       'user',
       'album.cover',
       'music',
       'art',
-      'listings',
-      'listings.seller',
-      'listings.buyer',
+      'licences',
+      'licences.seller',
+      'licences.buyer',
     ],
   };
 };
@@ -46,9 +46,9 @@ export const findAllArtistSongs = (
       'album.cover',
       'music',
       'art',
-      'listings',
-      'listings.seller',
-      'listings.buyer',
+      'licences',
+      'licences.seller',
+      'licences.buyer',
     ],
     take: take,
     skip: skip,
@@ -64,7 +64,7 @@ export const findAllUserSongs = (
   return {
     where: {
       title: Like('%' + title + '%'),
-      listings: { buyer: { id: user_id } },
+      licences: { buyer: { id: user_id } },
       music: { url_expiry: Raw((alias) => `${alias} > NOW()`) },
     },
     relations: [
@@ -72,9 +72,9 @@ export const findAllUserSongs = (
       'album.cover',
       'music',
       'art',
-      'listings',
-      'listings.seller',
-      'listings.buyer',
+      'licences',
+      'licences.seller',
+      'licences.buyer',
     ],
     take: take,
     skip: skip,

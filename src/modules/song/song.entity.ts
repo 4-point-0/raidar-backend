@@ -11,7 +11,7 @@ import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
 import { File } from '../file/file.entity';
 import { BaseEntity } from '../../common/models/base.entity';
-import { Listing } from '../listing/listing.entity';
+import { Licence } from '../licence/licence.entity';
 
 @Unique(['music', 'art'])
 @Entity()
@@ -98,6 +98,6 @@ export class Song extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   public pka: string;
 
-  @OneToMany(() => Listing, (listing) => listing.song)
-  listings: Listing[];
+  @OneToMany(() => Licence, (licence) => licence.song)
+  licences: Licence[];
 }

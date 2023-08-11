@@ -4,8 +4,8 @@ import { User } from '../user/user.entity';
 import { BaseEntity } from '../../common/models/base.entity';
 
 @Entity()
-export class Listing extends BaseEntity {
-  @ManyToOne(() => Song, (song) => song.listings)
+export class Licence extends BaseEntity {
+  @ManyToOne(() => Song, (song) => song.licences)
   @JoinColumn([
     {
       name: 'song_id',
@@ -15,7 +15,7 @@ export class Listing extends BaseEntity {
   ])
   song: Song;
 
-  @ManyToOne(() => User, (user) => user.listings_sold)
+  @ManyToOne(() => User, (user) => user.licences_sold)
   @JoinColumn([
     {
       name: 'seller_id',
@@ -25,7 +25,7 @@ export class Listing extends BaseEntity {
   ])
   seller: User;
 
-  @ManyToOne(() => User, (user) => user.listings_purchased)
+  @ManyToOne(() => User, (user) => user.licences_purchased)
   @JoinColumn([
     {
       name: 'buyer_id',
