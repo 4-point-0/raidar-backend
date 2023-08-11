@@ -190,7 +190,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       price: entity.price,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
-      //Ovaj LicenceDto.fromEntityForUserSongs vrati dobru vrijednost ali cim izade van se licence izgubi
+      //Ovaj LicenceDto.fromEntityForUserSongs vrati dobru vrijednost ali ga nemre assignat na licence
       licence: LicenceDto.fromEntityForUserSongs(entity.licences[0]),
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
     });
