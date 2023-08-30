@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Song } from '../song/song.entity';
 import { ServiceResult } from '../../helpers/response/result';
 import {
@@ -13,11 +13,12 @@ import {
 import { SongDto } from '../song/dto/song.dto';
 import { mapPaginatedSongsMarketplaceDto } from '../song/mappers/song.mappers';
 import { Role } from '../../common/enums/enum';
-import { findAllMarketplaceArtistSongs } from './queries/marketplace.queries';
+import { buildAlgoliaQueryForSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { validate } from 'uuid';
 import { findOneNotSoldSong } from '../song/queries/song.queries';
+import { AlgoliaClient } from '../../helpers/algolia/algolia.client';
 
 @Injectable()
 export class MarketplaceService {
@@ -27,6 +28,8 @@ export class MarketplaceService {
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('AlgoliaClient_songs')
+    private readonly algoliaClient: AlgoliaClient,
   ) {}
 
   async findAll(
@@ -43,37 +46,43 @@ export class MarketplaceService {
       const take = filters.take || 10;
       const skip = filters.skip || 0;
 
-      const query = {
-        title: filters.title || undefined,
-        artist: filters.artist || undefined,
-        minLength: filters.minLength || undefined,
-        maxLength: filters.maxLength || undefined,
-        genre: filters.genre || undefined,
-        mood: filters.mood || undefined,
-        tags: filters.tags || undefined,
-        minBpm: filters.minBpm || undefined,
-        maxBpm: filters.maxBpm || undefined,
-        instrumental: filters.instrumental || undefined,
-        musical_key: filters.musical_key || undefined,
-      };
+      const algoliaQuery = buildAlgoliaQueryForSongs(filters);
 
-      const result = await findAllMarketplaceArtistSongs(
-        this.songRepository,
-        query,
-        take,
-        skip,
+      const result = await this.algoliaClient.search(
+        [filters.title, filters.artist, filters.musical_key]
+          .filter(Boolean)
+          .join(' '),
+        {
+          hitsPerPage: algoliaQuery.hitsPerPage,
+          page: algoliaQuery.page,
+          filters: algoliaQuery.filters,
+          facetFilters: algoliaQuery.facetFilters,
+          restrictSearchableAttributes: ['title', 'artist', 'musical_key'],
+        },
       );
 
-      const songs = result.songs;
-      const total = result.count;
+      const songIds = result.hits.map((hit) => hit.objectID);
+      const dbSongs = await this.songRepository.find({
+        where: { id: In(songIds) },
+        relations: [
+          'user',
+          'album',
+          'music',
+          'art',
+          'listings',
+          'album.cover',
+          'listings.seller',
+          'listings.buyer',
+        ],
+      });
 
       const near_usd = await this.cacheManager.get<string>('near-usd');
 
       return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedSongsMarketplaceDto(
-          songs,
+          dbSongs,
           Number(near_usd),
-          total,
+          result.nbHits,
           take,
           skip,
         ),

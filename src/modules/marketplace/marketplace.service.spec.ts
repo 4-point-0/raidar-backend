@@ -3,18 +3,31 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MarketplaceService } from './marketplace.service';
 import { Song } from '../song/song.entity';
-import { Provider, Role } from '../../common/enums/enum';
+import { Role } from '../../common/enums/enum';
 import { SongFiltersDto } from './dto/songs.filter.dto';
-import * as MarketplaceQueries from './queries/marketplace.queries';
-import { User } from '../user/user.entity';
-import { Album } from '../album/album.entity';
-import { File } from '../file/file.entity';
-import { Listing } from '../listing/listing.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { array_songs } from '../../../test/mock-data';
+import { buildAlgoliaQueryForSongs } from './queries/marketplace.queries';
+import { mapSongToAlgoliaRecord } from '../song/mappers/algolia.mapper';
 
 describe('MarketplaceService', () => {
   let service: MarketplaceService;
   let songRepo: Repository<Song>;
+
+  const algoliaRecords = array_songs.map((song) =>
+    mapSongToAlgoliaRecord(song),
+  );
+
+  const mockAlgoliaResult = {
+    hits: algoliaRecords,
+    nbHits: algoliaRecords.length,
+  };
+
+  const algoliaClientSongsMock = {
+    indexRecord: jest.fn(),
+    indexMultipleRecords: jest.fn(),
+    search: jest.fn().mockReturnValue(mockAlgoliaResult),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,7 +35,14 @@ describe('MarketplaceService', () => {
         MarketplaceService,
         {
           provide: getRepositoryToken(Song),
-          useClass: Repository,
+          useValue: {
+            find: jest.fn().mockReturnValue(array_songs),
+            createQueryBuilder: jest.fn().mockReturnThis(),
+          },
+        },
+        {
+          provide: `AlgoliaClient_songs`,
+          useValue: algoliaClientSongsMock,
         },
         {
           provide: CACHE_MANAGER,
@@ -64,85 +84,17 @@ describe('MarketplaceService', () => {
       const roles = [Role.Artist];
       const filters = new SongFiltersDto();
 
-      const mockUser = Object.assign(new User(), {
-        id: '1',
-        email: 'testuser@test.com',
-        first_name: 'Test',
-        last_name: 'User',
-        roles: [Role.User],
-        provider: Provider.Google,
-        provider_id: 'testusergoogleid',
-        wallet_address: '0x123456789',
-        created_at: new Date('2020-01-01T00:00:00Z'),
-        updated_at: new Date('2020-01-01T00:00:00Z'),
-      });
-
-      const mockSongs: Song[] = [
-        Object.assign(new Song(), {
-          id: '1',
-          title: 'Test song 1',
-          user: mockUser,
-          album: Object.assign(new Album(), {
-            id: '1',
-            title: 'Test album 1',
-            cover: Object.assign(new File(), {
-              id: '1',
-              name: 'Test cover file 1',
-              mime_type: 'image/png',
-              url: 'http://example.com/cover1.png',
-              key: 'cover1',
-              url_expiry: new Date('2025-01-01T00:00:00Z'),
-            }),
-            pka: 'Test album 1 pka',
-          }),
-          length: 300,
-          genre: 'Rock',
-          mood: ['Happy'],
-          tags: ['Tag1'],
-          bpm: 120,
-          instrumental: false,
-          languages: ['English'],
-          vocal_ranges: ['High'],
-          musical_key: 'C',
-          music: Object.assign(new File(), {
-            id: '1',
-            name: 'Test music file 1',
-            mime_type: 'audio/mpeg',
-            url: 'http://example.com/music1.mp3',
-            key: 'music1',
-            url_expiry: new Date('2025-01-01T00:00:00Z'),
-          }),
-          recording_date: new Date('2020-01-01T00:00:00Z'),
-          recording_country: 'USA',
-          recording_location: 'Los Angeles',
-          art: Object.assign(new File(), {
-            id: '1',
-            name: 'Test art file 1',
-            mime_type: 'image/png',
-            url: 'http://example.com/art1.png',
-            key: 'art1',
-            url_expiry: new Date('2025-01-01T00:00:00Z'),
-          }),
-          pka: 'Test song 1 pka',
-          listings: [
-            Object.assign(new Listing(), {
-              id: '1',
-              seller: mockUser,
-              buyer: mockUser,
-              tx_hash: 'Test tx hash 1',
-              price: 10.0,
-            }),
-          ],
-        }),
-      ];
-
-      const mockQueryResult = { songs: mockSongs, count: mockSongs.length };
-
-      jest
-        .spyOn(MarketplaceQueries, 'findAllMarketplaceArtistSongs')
-        .mockImplementation(() => Promise.resolve(mockQueryResult));
+      const expectedAlgoliaQuery = {
+        ...buildAlgoliaQueryForSongs(filters),
+        restrictSearchableAttributes: ['title', 'artist', 'musical_key'],
+      };
 
       const response = await service.findAll(roles, filters);
+
+      expect(algoliaClientSongsMock.search).toHaveBeenCalledWith(
+        '',
+        expectedAlgoliaQuery,
+      );
       expect(response.data.results.length).toBe(1);
     });
 

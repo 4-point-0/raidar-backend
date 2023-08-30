@@ -27,6 +27,8 @@ import {
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { MIME_TYPE_WAV } from '../../common/constants';
+import { AlgoliaClient } from '../../helpers/algolia/algolia.client';
+import { mapSongToAlgoliaRecord } from './mappers/algolia.mapper';
 import { BuySongDto } from './dto/buy-song.dto';
 import { ListingDto } from '../listing/dto/listing.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -50,6 +52,8 @@ export class SongService {
     private albumRepository: Repository<Album>,
     @InjectRepository(Listing)
     private listingRepository: Repository<Listing>,
+    @Inject('AlgoliaClient_songs')
+    private readonly algoliaClient: AlgoliaClient,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -116,6 +120,9 @@ export class SongService {
       await this.listingRepository.save(listing);
 
       const song = await this.songRepository.findOne(findOneSong(new_song.id));
+
+      const algoliaRecord = mapSongToAlgoliaRecord(song);
+      await this.algoliaClient.indexRecord(algoliaRecord);
 
       return new ServiceResult<SongDto>(SongDto.fromEntity(song));
     } catch (error) {

@@ -106,3 +106,62 @@ export const song_1: Partial<Song> = {
   created_by_id: user_artist_1.id,
   updated_by_id: user_artist_1.id,
 };
+
+export const array_songs: Song[] = [
+  Object.assign(new Song(), {
+    id: '1',
+    title: 'Test song 1',
+    user: user_artist_1 as User,
+    album: Object.assign(new Album(), {
+      id: '1',
+      title: 'Test album 1',
+      cover: Object.assign(new File(), {
+        id: '1',
+        name: 'Test cover file 1',
+        mime_type: 'image/png',
+        url: 'http://example.com/cover1.png',
+        key: 'cover1',
+        url_expiry: new Date('2025-01-01T00:00:00Z'),
+      }),
+      pka: 'Test album 1 pka',
+    }),
+    length: 300,
+    genre: 'Rock',
+    mood: ['Happy'],
+    tags: ['Tag1'],
+    bpm: 120,
+    instrumental: false,
+    languages: ['English'],
+    vocal_ranges: ['High'],
+    musical_key: 'C',
+    music: Object.assign(new File(), {
+      id: '1',
+      name: 'Test music file 1',
+      mime_type: 'audio/mpeg',
+      url: 'http://example.com/music1.mp3',
+      key: 'music1',
+      url_expiry: new Date('2025-01-01T00:00:00Z'),
+    }),
+    recording_date: new Date('2020-01-01T00:00:00Z'),
+    recording_country: 'USA',
+    recording_location: 'Los Angeles',
+    art: Object.assign(new File(), {
+      id: '1',
+      name: 'Test art file 1',
+      mime_type: 'image/png',
+      url: 'http://example.com/art1.png',
+      key: 'art1',
+      url_expiry: new Date('2025-01-01T00:00:00Z'),
+    }),
+    pka: 'Test song 1 pka',
+    listings: [
+      Object.assign(new Listing(), {
+        id: '1',
+        seller: user_artist_1 as User,
+        buyer: user_artist_1 as User,
+        tx_hash: 'Test tx hash 1',
+        price: 10.0,
+      }),
+    ],
+  }),
+];

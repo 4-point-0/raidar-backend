@@ -68,6 +68,13 @@ describe('SongService', () => {
           },
         },
         {
+          provide: 'AlgoliaClient_songs',
+          useValue: {
+            indexRecord: jest.fn(),
+            indexMultipleRecords: jest.fn(),
+          },
+        },
+        {
           provide: USER_REPOSITORY_TOKEN,
           useValue: {
             findOneBy: jest.fn().mockResolvedValue(song_1.user),

@@ -36,4 +36,9 @@ export const configuration = () => ({
     api_key: process.env.SENDGRID_API_KEY,
     email: process.env.SENDGRID_EMAIL,
   },
+  algolia: {
+    api_key: process.env.ALGOLIA_API_KEY,
+    app_id: process.env.ALGOLIA_APPLICATION_ID,
+    index_name: process.env.ALGOLIA_INDEX_NAME,
+  },
 });
