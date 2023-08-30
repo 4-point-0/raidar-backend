@@ -7,11 +7,6 @@ const nearAPI = require('near-api-js');
 
 export class LicenceDto extends BaseDto implements Readonly<LicenceDto> {
   @ApiProperty({
-    type: String,
-  })
-  id: string;
-
-  @ApiProperty({
     type: UserDto,
   })
   seller: UserDto;

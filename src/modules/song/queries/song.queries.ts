@@ -80,3 +80,10 @@ export const findAllUserSongs = (
     skip: skip,
   };
 };
+
+export const findSongWithUser = (songId: string) => {
+  return {
+    where: { id: songId },
+    relations: ['user'],
+  };
+};

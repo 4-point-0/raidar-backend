@@ -26,6 +26,7 @@ import {
   findAllArtistSongs,
   findAllUserSongs,
   findOneSong,
+  findSongWithUser,
 } from './queries/song.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
@@ -209,10 +210,8 @@ export class SongService {
 
   async buySong(dto: BuySongDto): Promise<ServiceResult<LicenceDto>> {
     try {
-      const song = await this.songRepository.findOne({
-        where: { id: dto.songId },
-        relations: ['user'],
-      });
+      const songQuery = findSongWithUser(dto.songId);
+      const song = await this.songRepository.findOne(songQuery);
 
       if (!song) {
         return new NotFound<LicenceDto>(`Song not found`);
