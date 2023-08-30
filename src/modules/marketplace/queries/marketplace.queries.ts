@@ -14,11 +14,7 @@ export const findAllMarketplaceArtistSongs = async (
     .leftJoinAndSelect('song.album', 'album')
     .leftJoinAndSelect('album.cover', 'cover')
     .leftJoinAndSelect('song.music', 'music')
-    .leftJoinAndSelect('song.art', 'art')
-    .leftJoinAndSelect('song.listings', 'listings')
-    .leftJoinAndSelect('listings.seller', 'seller')
-    .leftJoinAndSelect('listings.buyer', 'buyer')
-    .where('buyer IS NULL');
+    .leftJoinAndSelect('song.art', 'art');
 
   if (query.title) {
     qb = qb.andWhere('song.title ILIKE :title', {

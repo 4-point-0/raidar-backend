@@ -22,8 +22,8 @@ describe('AuthService', () => {
     provider_id: 'providerId',
     wallet_address: null,
     songs: [],
-    listings_sold: [],
-    listings_purchased: [],
+    licences_sold: [],
+    licences_purchased: [],
     created_at: new Date(),
     updated_at: new Date(),
   };

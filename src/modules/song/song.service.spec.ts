@@ -5,7 +5,7 @@ import { Song } from './song.entity';
 import { File } from '../file/file.entity';
 import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
-import { Listing } from '../listing/listing.entity';
+import { Licence } from '../licence/licence.entity';
 import { Repository } from 'typeorm';
 import { album_1, song_1 } from '../../../test/mock-data';
 import { NotFound } from '../../helpers/response/errors';
@@ -17,13 +17,13 @@ describe('SongService', () => {
   let fileRepository: Repository<File>;
   let userRepository: Repository<User>;
   let albumRepository: Repository<Album>;
-  let listingRepository: Repository<Listing>;
+  let licenceRepository: Repository<Licence>;
 
   const SONG_REPOSITORY_TOKEN = getRepositoryToken(Song);
   const FILE_REPOSITORY_TOKEN = getRepositoryToken(File);
   const USER_REPOSITORY_TOKEN = getRepositoryToken(User);
   const ALBUM_REPOSITORY_TOKEN = getRepositoryToken(Album);
-  const LISTING_REPOSITORY_TOKEN = getRepositoryToken(Listing);
+  const LICENCE_REPOSITORY_TOKEN = getRepositoryToken(Licence);
 
   const create_song_dto = {
     title: song_1.title,
@@ -35,7 +35,7 @@ describe('SongService', () => {
     genre: song_1.genre,
     instrumental: song_1.instrumental,
     mood: song_1.mood,
-    price: song_1.listings[0].price,
+    price: song_1.price,
     languages: song_1.languages,
     tags: song_1.tags,
     length: song_1.length,
@@ -91,11 +91,11 @@ describe('SongService', () => {
           },
         },
         {
-          provide: LISTING_REPOSITORY_TOKEN,
+          provide: LICENCE_REPOSITORY_TOKEN,
           useValue: {
-            create: jest.fn().mockResolvedValue(song_1.listings[0]),
-            save: jest.fn().mockResolvedValue(song_1.listings[0]),
-            findOneBy: jest.fn().mockResolvedValue(song_1.listings[0]),
+            create: jest.fn().mockResolvedValue(song_1.licences[0]),
+            save: jest.fn().mockResolvedValue(song_1.licences[0]),
+            findOneBy: jest.fn().mockResolvedValue(song_1.licences[0]),
           },
         },
       ],
@@ -106,8 +106,8 @@ describe('SongService', () => {
     fileRepository = module.get<Repository<File>>(FILE_REPOSITORY_TOKEN);
     userRepository = module.get<Repository<User>>(USER_REPOSITORY_TOKEN);
     albumRepository = module.get<Repository<Album>>(ALBUM_REPOSITORY_TOKEN);
-    listingRepository = module.get<Repository<Listing>>(
-      LISTING_REPOSITORY_TOKEN,
+    licenceRepository = module.get<Repository<Licence>>(
+      LICENCE_REPOSITORY_TOKEN,
     );
   });
 
@@ -120,7 +120,7 @@ describe('SongService', () => {
     expect(fileRepository).toBeDefined();
     expect(userRepository).toBeDefined();
     expect(albumRepository).toBeDefined();
-    expect(listingRepository).toBeDefined();
+    expect(licenceRepository).toBeDefined();
   });
 
   describe('createSong', () => {
@@ -129,8 +129,6 @@ describe('SongService', () => {
       expect(result).toBeDefined();
       expect(songRepository.create).toHaveBeenCalledWith(expect.any(Object));
       expect(songRepository.save).toHaveBeenCalled();
-      expect(listingRepository.create).toHaveBeenCalledWith(expect.any(Object));
-      expect(listingRepository.save).toHaveBeenCalled();
     });
   });
 

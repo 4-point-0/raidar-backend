@@ -6,7 +6,7 @@ import { Album } from '../src/modules/album/album.entity';
 import { File } from '../src/modules/file/file.entity';
 import { addDays } from '../src/common/date/date-helper';
 import { Song } from '../src/modules/song/song.entity';
-import { Listing } from '../src/modules/listing/listing.entity';
+import { Licence } from '../src/modules/licence/licence.entity';
 
 export const user_artist_1: Partial<User> = {
   id: uuidv4(),
@@ -70,11 +70,11 @@ export const song_art_1: Partial<File> = {
   updated_by_id: user_artist_1.id,
 };
 
-export const song_listing_1: Partial<Listing> = {
+export const song_licence_1: Partial<Licence> = {
   id: uuidv4(),
   buyer: null,
   seller: user_artist_1 as User,
-  price: 50,
+  sold_price: '154324234230000000000000',
   updated_at: new Date(),
   created_by_id: user_artist_1.id,
   updated_by_id: user_artist_1.id,
@@ -100,7 +100,8 @@ export const song_1: Partial<Song> = {
   recording_location: 'New York',
   vocal_ranges: ['tenor'],
   user: user_artist_1 as User,
-  listings: [song_listing_1 as Listing],
+  price: 14,
+  licences: [song_licence_1 as Licence],
   created_at: new Date(),
   updated_at: new Date(),
   created_by_id: user_artist_1.id,
