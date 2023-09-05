@@ -38,7 +38,7 @@ import { Cache } from 'cache-manager';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 import { songDownloadTemplate } from '../../common/email-templates/song-dowload-template';
-import { songBoughtTemplate } from 'src/common/email-templates/song-bought-notif-template';
+import { songBoughtTemplate } from '../../common/email-templates/song-bought-notif-template';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
