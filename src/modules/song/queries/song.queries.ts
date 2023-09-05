@@ -84,6 +84,6 @@ export const findAllUserSongs = (
 export const findSongWithUser = (songId: string) => {
   return {
     where: { id: songId },
-    relations: ['user'],
+    relations: ['user', 'music'],
   };
 };

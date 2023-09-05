@@ -35,6 +35,10 @@ import { BuySongDto } from './dto/buy-song.dto';
 import { LicenceDto } from '../licence/dto/licence.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { EmailService } from '../email/email.service';
+import { ConfigService } from '@nestjs/config';
+import { songDownloadTemplate } from '../../common/email-templates/song-dowload-template';
+import { songBoughtTemplate } from '../../common/email-templates/song-bought-notif-template';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
@@ -55,6 +59,8 @@ export class SongService {
     @InjectRepository(Licence)
     private licenceRepository: Repository<Licence>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async createSong(dto: CreateSongDto): Promise<ServiceResult<SongDto>> {
@@ -257,6 +263,21 @@ export class SongService {
       await this.licenceRepository.save(licence);
 
       const licenceDto = LicenceDto.fromEntity(licence);
+
+      await this.emailService.send({
+        to: buyer.email,
+        from: this.configService.get('sendgrid.email'),
+        subject: 'Download Your Raidar Song',
+        html: songDownloadTemplate(song.music.url),
+      });
+
+      await this.emailService.send({
+        to: seller.email,
+        from: this.configService.get('sendgrid.email'),
+        subject: 'Your Song Has Been Sold',
+        html: songBoughtTemplate(song.title),
+      });
+
       return new ServiceResult<LicenceDto>(licenceDto);
     } catch (error) {
       this.logger.error('SongService - buySong', error);

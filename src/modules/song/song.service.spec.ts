@@ -7,9 +7,19 @@ import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
 import { Licence } from '../licence/licence.entity';
 import { Repository } from 'typeorm';
-import { album_1, song_1 } from '../../../test/mock-data';
-import { NotFound } from '../../helpers/response/errors';
+import {
+  album_1,
+  song_1,
+  song_licence_1,
+  user_artist_1,
+} from '../../../test/mock-data';
+import { BadRequest, NotFound } from '../../helpers/response/errors';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BuySongDto } from './dto/buy-song.dto';
+import { LicenceDto } from '../licence/dto/licence.dto';
+import { ServiceResult } from '../../helpers/response/result';
+import { EmailService } from '../email/email.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('SongService', () => {
   let songService: SongService;
@@ -70,6 +80,7 @@ describe('SongService', () => {
         {
           provide: USER_REPOSITORY_TOKEN,
           useValue: {
+            findOne: jest.fn().mockResolvedValue(song_1.user),
             findOneBy: jest.fn().mockResolvedValue(song_1.user),
           },
         },
@@ -96,6 +107,28 @@ describe('SongService', () => {
             create: jest.fn().mockResolvedValue(song_1.licences[0]),
             save: jest.fn().mockResolvedValue(song_1.licences[0]),
             findOneBy: jest.fn().mockResolvedValue(song_1.licences[0]),
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            send: jest.fn().mockReturnValue(true),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'sengrid.email') {
+                return '123';
+              }
+
+              if (key === 'sendgrid.api_key') {
+                return '123';
+              }
+              return null;
+            }),
           },
         },
       ],
@@ -172,6 +205,57 @@ describe('SongService', () => {
       );
       expect(result).toBeDefined();
       expect(songRepository.findAndCount).toHaveBeenCalled();
+    });
+  });
+
+  describe('buySong', () => {
+    it('should return ServerError error if song is not found', async () => {
+      jest.spyOn(songRepository, 'findOne').mockResolvedValue(null);
+      const dto: BuySongDto = {
+        songId: 'nonExistentSongId',
+        buyerId: 'buyerId',
+        txHash: 'txHash',
+      };
+      const result = await songService.buySong(dto);
+      expect(result).toBeInstanceOf(NotFound);
+      expect(result.error.message).toEqual('Song not found');
+    });
+
+    it('should return NotFound error if buyer is not found', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+      const dto: BuySongDto = {
+        songId: song_1.id,
+        buyerId: 'nonExistentBuyerId',
+        txHash: 'txHash',
+      };
+      const result = await songService.buySong(dto);
+      expect(result).toBeInstanceOf(NotFound);
+      expect(result.error.message).toEqual('Buyer not found!');
+    });
+
+    it('should return BadRequest error if buyer already owns a license', async () => {
+      const dto: BuySongDto = {
+        songId: song_1.id,
+        buyerId: user_artist_1.id,
+        txHash: 'txHash',
+      };
+      licenceRepository.findOne = jest.fn().mockResolvedValue(song_licence_1);
+      const result = await songService.buySong(dto);
+      expect(result).toBeInstanceOf(BadRequest);
+      expect(result.error.message).toEqual(
+        'Buyer already owns a licence for this song!',
+      );
+    });
+
+    it('should handle successful song purchase', async () => {
+      const dto: BuySongDto = {
+        songId: song_1.id,
+        buyerId: user_artist_1.id,
+        txHash: 'txHash',
+      };
+      const result = await songService.buySong(dto);
+      expect(result).toBeInstanceOf(ServiceResult);
+      expect(result.data).toEqual(expect.any(LicenceDto));
     });
   });
 });
