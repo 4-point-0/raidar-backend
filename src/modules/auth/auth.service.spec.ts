@@ -6,6 +6,7 @@ import { User } from '../user/user.entity';
 import { Repository } from 'typeorm';
 import { GoogleOAuthService } from './google-auth.service';
 import { Provider, Role } from '../../common/enums/enum';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -58,6 +59,19 @@ describe('AuthService', () => {
             getUserData: jest.fn().mockResolvedValue({
               given_name: 'firstName',
               family_name: 'lastName',
+            }),
+          },
+        },
+        {
+          provide: ConfigService,
+
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'email_domains') {
+                return '4pto.io,berklee.edu';
+              }
+
+              return null;
             }),
           },
         },

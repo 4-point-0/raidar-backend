@@ -36,4 +36,5 @@ export const configuration = () => ({
     api_key: process.env.SENDGRID_API_KEY,
     email: process.env.SENDGRID_EMAIL,
   },
+  email_domains: process.env.EMAIL_DOMAINS,
 });

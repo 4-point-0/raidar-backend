@@ -14,6 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/user.entity';
 import { Repository } from 'typeorm';
 import { Provider, Role } from '../../common/enums/enum';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private userRepository: Repository<User>,
     private jwtService: JwtService,
     private readonly googleAuthService: GoogleOAuthService,
+    private readonly configService: ConfigService,
   ) {}
 
   generateJwt(payload) {
@@ -93,8 +95,12 @@ export class AuthService {
     user: GoogleUserDto,
   ): Promise<ServiceResult<JwtTokenDto>> {
     try {
-      const userRole: Role =
-        user.email.split('@')[1] === '4pto.io' ? Role.Artist : Role.User;
+      const userRole: Role = this.configService
+        .get('email_domains')
+        .split(',')
+        .includes(user.email.split('@')[1])
+        ? Role.Artist
+        : Role.User;
       const newUser = this.userRepository.create({
         email: user.email,
         first_name: user.first_name,

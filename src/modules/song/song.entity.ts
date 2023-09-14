@@ -6,6 +6,7 @@ import {
   OneToOne,
   OneToMany,
   Unique,
+  Generated,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Album } from '../album/album.entity';
@@ -108,4 +109,11 @@ export class Song extends BaseEntity {
     nullable: false,
   })
   price: number;
+
+  @Column({
+    type: 'integer',
+    nullable: false,
+  })
+  @Generated('increment')
+  token_contract_id: number;
 }

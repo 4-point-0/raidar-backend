@@ -7,6 +7,8 @@ import {
   Post,
   Query,
   Req,
+  Res,
+  StreamableFile,
   UseFilters,
 } from '@nestjs/common';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
@@ -24,12 +26,16 @@ import { ArtistSongsFilterDto } from './dto/artist-songs.filter.dto';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { BuySongDto } from './dto/buy-song.dto';
 import { LicenceDto } from '../licence/dto/licence.dto';
+import { HttpService } from '@nestjs/axios';
 
 @ApiTags('song')
 @Controller('song')
 @ApiExtraModels(PaginatedDto)
 export class SongController {
-  constructor(private readonly songService: SongService) {}
+  constructor(
+    private readonly songService: SongService,
+    private readonly httpService: HttpService,
+  ) {}
 
   @Post()
   @Auth(Role.Artist)
@@ -90,5 +96,17 @@ export class SongController {
   @CommonApiResponse(LicenceDto)
   async buySong(@Body() dto: BuySongDto) {
     return handle(await this.songService.buySong(dto));
+  }
+
+  @Get(':tokenId/media')
+  @UseFilters(new HttpExceptionFilter())
+  @CommonApiResponse(StreamableFile)
+  @HttpCode(200)
+  async getNftMedia(@Res() res: Response, @Param('tokenId') tokenId: string) {
+    const result = await handle(await this.songService.getSongMedia(tokenId));
+    const response = await this.httpService.axiosRef(result, {
+      responseType: 'stream',
+    });
+    response.data.pipe(res);
   }
 }
