@@ -26,6 +26,7 @@ import {
   findAllArtistSongs,
   findAllUserSongs,
   findOneSong,
+  findSongByTokenContractId,
   findSongWithUser,
 } from './queries/song.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
@@ -282,6 +283,25 @@ export class SongService {
     } catch (error) {
       this.logger.error('SongService - buySong', error);
       return new ServerError<LicenceDto>(`Can't purchase song`);
+    }
+  }
+
+  async getSongMedia(
+    token_contract_id: string,
+  ): Promise<ServiceResult<string>> {
+    try {
+      const song = await this.songRepository.findOne(
+        findSongByTokenContractId(token_contract_id),
+      );
+
+      if (!song) {
+        return new NotFound<string>(`Song not found`);
+      }
+
+      return new ServiceResult<string>(song.art.url);
+    } catch (error) {
+      this.logger.error('SongService - getSongMedia', error);
+      return new ServerError<string>(`Can't get song media`);
     }
   }
 }

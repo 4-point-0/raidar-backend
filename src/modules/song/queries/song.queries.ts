@@ -87,3 +87,10 @@ export const findSongWithUser = (songId: string) => {
     relations: ['user', 'music'],
   };
 };
+
+export const findSongByTokenContractId = (token_contract_id: string) => {
+  return {
+    where: { token_contract_id: Number.parseInt(token_contract_id) },
+    relations: ['art'],
+  };
+};

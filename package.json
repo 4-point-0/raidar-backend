@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-esm",
-    "migration:generate": "yarn build && MODE=dev yarn typeorm migration:generate -d src/common/config/db/orm.config.ts src/migrations/album-cover-unique",
+    "migration:generate": "yarn build && MODE=dev yarn typeorm migration:generate -d src/common/config/db/orm.config.ts src/migrations/song-token_contract_id",
     "migration:create": "yarn build && MODE=dev yarn typeorm migration:create src/migrations/admin-role",
     "migration:run": "yarn build && MODE=dev yarn typeorm migration:run -d src/common/config/db/orm.config.ts",
     "migration:revert": "yarn build && MODE=dev yarn typeorm -- migration:revert -d src/common/config/db/orm.config.ts"

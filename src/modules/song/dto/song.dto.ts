@@ -118,6 +118,11 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   licence?: LicenceDto;
 
+  @ApiProperty({
+    type: Number,
+  })
+  token_contract_id: number;
+
   public static from(dto: Partial<SongDto>) {
     const song = new SongDto();
     song.id = dto.id;
@@ -140,6 +145,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     song.art = dto.art;
     song.album = dto.album;
     song.price = dto.price;
+    song.token_contract_id = dto.token_contract_id;
 
     return song;
   }
@@ -163,6 +169,7 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
       recording_country: entity.recording_country,
       pka: entity.pka,
       price: entity.price,
+      token_contract_id: entity.token_contract_id,
       music: FileDto.fromEntity(entity.music),
       art: FileDto.fromEntity(entity.art),
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
