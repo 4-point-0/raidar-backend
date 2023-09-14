@@ -19,4 +19,5 @@ export const envValidationSchema = Joi.object({
   AWS_REGION: Joi.string().required(),
   SENDGRID_API_KEY: Joi.string().required(),
   SENDGRID_EMAIL: Joi.string().required(),
+  EMAIL_DOMAINS: Joi.string().required(),
 });
