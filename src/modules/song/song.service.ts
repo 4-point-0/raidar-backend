@@ -269,7 +269,7 @@ export class SongService {
         to: buyer.email,
         from: this.configService.get('sendgrid.email'),
         subject: 'Download Your Raidar Song',
-        html: songDownloadTemplate(song.music.url),
+        html: songDownloadTemplate(song.title, song.music.url),
       });
 
       await this.emailService.send({
