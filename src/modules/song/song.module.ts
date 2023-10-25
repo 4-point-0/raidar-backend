@@ -9,11 +9,13 @@ import { Licence } from '../licence/licence.entity';
 import { User } from '../user/user.entity';
 import { EmailService } from '../email/email.service';
 import { HttpModule } from '@nestjs/axios';
+import { CoingeckoModule } from '../coingecko/coingecko.module';
 
 @Module({
   imports: [
     HttpModule,
     TypeOrmModule.forFeature([Song, File, Album, User, Licence]),
+    CoingeckoModule,
   ],
   providers: [SongService, EmailService],
   controllers: [SongController],

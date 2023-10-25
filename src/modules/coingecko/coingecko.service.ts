@@ -31,6 +31,22 @@ export class CoingeckoService {
     }
   }
 
+  async convertNearToUsd(amountInNear: number): Promise<number> {
+    const near_usd = await this.getCurrentNearPrice();
+    if (!near_usd) {
+      throw new Error('Failed to get current NEAR price.');
+    }
+    return amountInNear * near_usd.data;
+  }
+
+  async convertUsdToNear(amountInUsd: number): Promise<number> {
+    const near_usd = await this.getCurrentNearPrice();
+    if (!near_usd) {
+      throw new Error('Failed to get current NEAR price.');
+    }
+    return amountInUsd / near_usd.data;
+  }
+
   async setNearPrice(price: number): Promise<ServiceResult<number>> {
     try {
       await this.cacheManager.set('near-usd', price.toString(), 0);

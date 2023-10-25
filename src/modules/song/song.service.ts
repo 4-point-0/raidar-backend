@@ -40,6 +40,7 @@ import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 import { songDownloadTemplate } from '../../common/email-templates/song-dowload-template';
 import { songBoughtTemplate } from '../../common/email-templates/song-bought-notif-template';
+import { CoingeckoService } from '../coingecko/coingecko.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
@@ -62,6 +63,7 @@ export class SongService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    private readonly coingeckoService: CoingeckoService,
   ) {}
 
   async createSong(dto: CreateSongDto): Promise<ServiceResult<SongDto>> {
@@ -117,6 +119,10 @@ export class SongService {
       if (!user) {
         return new NotFound<SongDto>(`User not found!`);
       }
+      const priceInNear = await this.coingeckoService.convertUsdToNear(
+        dto.price,
+      );
+      dto.price = priceInNear;
 
       const new_song = this.songRepository.create(
         createSongMapper(dto, user, album, music_file, art_file),
@@ -151,6 +157,8 @@ export class SongService {
         return new NotFound<SongDto>(`Song not found!`);
       }
 
+      song.price = await this.coingeckoService.convertNearToUsd(song.price);
+
       return new ServiceResult<SongDto>(SongDto.fromEntity(song));
     } catch (error) {
       this.logger.error('SongService - findOneSong', error);
@@ -177,7 +185,9 @@ export class SongService {
       const [result, total] = await this.songRepository.findAndCount(
         findAllArtistSongs(title, user_id, take, skip),
       );
-
+      for (const song of result) {
+        song.price = await this.coingeckoService.convertNearToUsd(song.price);
+      }
       return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedSongsDto(result, total, take, skip),
       );
@@ -206,6 +216,9 @@ export class SongService {
       const [result, total] = await this.songRepository.findAndCount(
         findAllUserSongs(title, user_id, take, skip),
       );
+      for (const song of result) {
+        song.price = await this.coingeckoService.convertNearToUsd(song.price);
+      }
       return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedUserSongsDto(result, total, take, skip),
       );
