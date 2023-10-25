@@ -20,6 +20,7 @@ import { LicenceDto } from '../licence/dto/licence.dto';
 import { ServiceResult } from '../../helpers/response/result';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
+import { CoingeckoService } from '../coingecko/coingecko.service';
 
 describe('SongService', () => {
   let songService: SongService;
@@ -88,6 +89,14 @@ describe('SongService', () => {
           provide: ALBUM_REPOSITORY_TOKEN,
           useValue: {
             findOneBy: jest.fn().mockResolvedValue(album_1),
+          },
+        },
+        {
+          provide: CoingeckoService,
+          useValue: {
+            getCurrentNearPrice: jest.fn().mockResolvedValue(1),
+            convertNearToUsd: jest.fn(),
+            convertUsdToNear: jest.fn(),
           },
         },
         {
