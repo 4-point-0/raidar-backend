@@ -54,6 +54,7 @@ export class CoingeckoService {
       this.logger.error('CoingeckoService - getStoragePrices', error);
       return new ServerError(`Can't get storage prices`);
     }
+  }
   async convertNearToUsd(amountInNear: number): Promise<number> {
     const near_usd = await this.getCurrentNearPrice();
     if (!near_usd) {
