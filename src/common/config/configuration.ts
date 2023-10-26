@@ -37,4 +37,5 @@ export const configuration = () => ({
     email: process.env.SENDGRID_EMAIL,
   },
   email_domains: process.env.EMAIL_DOMAINS,
+  storage_cost_usd: process.env.STORAGE_COST_USD,
 });

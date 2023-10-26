@@ -7,6 +7,7 @@ import { NEAR_PRICE_USD_COINGECKO_URL } from '../../common/constants';
 import { ServiceResult } from '../../helpers/response/result';
 import { BadRequest, ServerError } from '../../helpers/response/errors';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CoingeckoService {
@@ -15,6 +16,7 @@ export class CoingeckoService {
   constructor(
     private readonly httpService: HttpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly configService: ConfigService,
   ) {}
 
   async getCurrentNearPrice(): Promise<ServiceResult<number>> {
@@ -31,6 +33,28 @@ export class CoingeckoService {
     }
   }
 
+  async getStoragePrices(): Promise<
+    ServiceResult<{ nearPrice: number; usdPrice: number }>
+  > {
+    try {
+      const near_usd = await this.cacheManager.get<string>('near-usd');
+
+      if (!near_usd) {
+        return new BadRequest(`Near price not set`);
+      }
+
+      const usdPrice = this.configService.get<number>('storage_cost_usd');
+      const nearPrice = usdPrice / Number(near_usd);
+
+      return new ServiceResult({
+        nearPrice: nearPrice,
+        usdPrice: usdPrice,
+      });
+    } catch (error) {
+      this.logger.error('CoingeckoService - getStoragePrices', error);
+      return new ServerError(`Can't get storage prices`);
+    }
+  }
   async convertNearToUsd(amountInNear: number): Promise<number> {
     const near_usd = await this.getCurrentNearPrice();
     if (!near_usd) {

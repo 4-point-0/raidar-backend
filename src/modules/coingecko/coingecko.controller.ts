@@ -45,4 +45,12 @@ export class CoingeckoController {
   async setNearCoingeckoPrice() {
     return handle(await this.coingeckoService.setNearCoingeckoPrice());
   }
+
+  @Get('storage-price')
+  @UseFilters(new HttpExceptionFilter())
+  @Auth(Role.Admin)
+  @CommonApiResponse(Object)
+  async getStoragePrice() {
+    return handle(await this.coingeckoService.getStoragePrices());
+  }
 }

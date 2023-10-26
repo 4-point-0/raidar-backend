@@ -63,4 +63,34 @@ describe('CoingeckoService', () => {
       error: undefined,
     });
   });
+
+  it('should get storage prices in USD and NEAR', async () => {
+    const nearPriceInUsd = '5';
+    const storagePriceInUsd = 0.00123;
+    const expectedNearStoragePrice = storagePriceInUsd / Number(nearPriceInUsd);
+
+    mockCacheManager.get.mockResolvedValue(nearPriceInUsd);
+    jest
+      .spyOn(service['configService'], 'get')
+      .mockReturnValue(storagePriceInUsd);
+
+    const result = await service.getStoragePrices();
+
+    expect(result).toEqual({
+      data: {
+        nearPrice: expectedNearStoragePrice,
+        usdPrice: storagePriceInUsd,
+      },
+      error: undefined,
+    });
+  });
+
+  it('should return an error if NEAR price is not set', async () => {
+    mockCacheManager.get.mockResolvedValue(undefined);
+
+    const result = await service.getStoragePrices();
+
+    expect(result.data).toBeNull();
+    expect(result.error.message).toEqual('Near price not set');
+  });
 });
