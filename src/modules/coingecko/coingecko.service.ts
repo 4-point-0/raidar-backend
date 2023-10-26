@@ -43,12 +43,13 @@ export class CoingeckoService {
         return new BadRequest(`Near price not set`);
       }
 
-      const usdPrice = this.configService.get<number>('storage_cost_usd');
-      const nearPrice = usdPrice / Number(near_usd);
+      const storage_cost_usd =
+        this.configService.get<number>('storage_cost_usd');
+      const nearPrice = storage_cost_usd / Number(near_usd);
 
       return new ServiceResult({
         nearPrice: nearPrice,
-        usdPrice: usdPrice,
+        usdPrice: storage_cost_usd,
       });
     } catch (error) {
       this.logger.error('CoingeckoService - getStoragePrices', error);
