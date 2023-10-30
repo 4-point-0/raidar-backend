@@ -1,12 +1,12 @@
-import { ExtendedSongDto } from '../../song/dto/song.dto';
+import { SongDto } from '../../song/dto/song.dto';
 import { PaginatedDto } from '../../../common/pagination/paginated-dto';
 
 export const mapPaginatedExtendedSongsDto = (
-  extendedSongs: ExtendedSongDto[],
+  extendedSongs: SongDto[],
   total: number,
   take?: number,
   skip?: number,
-): PaginatedDto<ExtendedSongDto> => {
+): PaginatedDto<SongDto> => {
   return {
     total: total,
     take: Number(take),

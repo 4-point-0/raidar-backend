@@ -8,7 +8,7 @@ import {
   NotFound,
   ServerError,
 } from '../../helpers/response/errors';
-import { ExtendedSongDto, SongDto } from '../song/dto/song.dto';
+import { SongDto } from '../song/dto/song.dto';
 import { Role } from '../../common/enums/enum';
 import { findAllMarketplaceArtistSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
@@ -74,19 +74,23 @@ export class MarketplaceService {
       const updatedSongs = await Promise.all(
         songs.map(async (songEntity) => {
           const songDto = SongDto.fromEntity(songEntity);
+
           const songPriceInUsd = await this.coingeckoService.convertNearToUsd(
             songEntity.price,
           );
-          const priceInUsdString = songPriceInUsd.toString();
-          return ExtendedSongDto.fromSongDto(
-            songDto,
-            priceInUsdString,
-            storagePriceUsd,
-          );
+          songDto.priceInUsd = songPriceInUsd
+            ? songPriceInUsd.toString()
+            : null;
+
+          songDto.storagePriceUsd = storagePriceUsd
+            ? storagePriceUsd.toString()
+            : null;
+
+          return songDto;
         }),
       );
 
-      return new ServiceResult<PaginatedDto<ExtendedSongDto>>(
+      return new ServiceResult<PaginatedDto<SongDto>>(
         mapPaginatedExtendedSongsDto(updatedSongs, total, take, skip),
       );
     } catch (error) {
@@ -111,11 +115,22 @@ export class MarketplaceService {
       }
 
       const song = await this.songRepository.findOne(findOneNotSoldSong(id));
-
       if (!song) {
         return new NotFound<SongDto>(`Song not found!`);
       }
-      return new ServiceResult<SongDto>(SongDto.fromEntity(song));
+
+      const songDto = SongDto.fromEntity(song);
+      const songPriceInUsd = await this.coingeckoService.convertNearToUsd(
+        song.price,
+      );
+      songDto.priceInUsd = songPriceInUsd ? songPriceInUsd.toString() : null;
+      const storagePriceUsd =
+        this.configService.get<number>('storage_cost_usd');
+      songDto.storagePriceUsd = storagePriceUsd
+        ? storagePriceUsd.toString()
+        : null;
+
+      return new ServiceResult<SongDto>(songDto);
     } catch (error) {
       this.logger.error('SongService - findOneSong', error);
       return new ServerError<SongDto>(`Can't get song`);

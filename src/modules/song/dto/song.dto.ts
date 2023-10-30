@@ -4,6 +4,7 @@ import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 import { SongAlbumDto } from './song-album.dto';
 import { LicenceDto } from '../../../modules/licence/dto/licence.dto';
+import { IsOptional } from 'class-validator';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
@@ -107,6 +108,14 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
   })
   pka: string;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  priceInUsd?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  storagePriceUsd?: string;
+
   @ApiProperty({
     type: String,
   })
@@ -204,25 +213,5 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
           : null,
       album: entity.album ? SongAlbumDto.fromEntity(entity.album) : null,
     });
-  }
-}
-
-export class ExtendedSongDto extends SongDto {
-  priceInUsd: string;
-  storagePriceUsd: number;
-
-  constructor(songDto: SongDto, priceInUsd: string, storagePriceUsd: number) {
-    super();
-    Object.assign(this, songDto);
-    this.priceInUsd = priceInUsd;
-    this.storagePriceUsd = storagePriceUsd;
-  }
-
-  public static fromSongDto(
-    songDto: SongDto,
-    priceInUsd: string,
-    storagePriceUsd: number,
-  ) {
-    return new ExtendedSongDto(songDto, priceInUsd, storagePriceUsd);
   }
 }
