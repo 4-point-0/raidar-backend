@@ -15,7 +15,9 @@ import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { validate } from 'uuid';
 import { findOneNotSoldSong } from '../song/queries/song.queries';
-import { mapPaginatedSongsDto } from '../song/mappers/song.mappers';
+import { ConfigService } from '@nestjs/config';
+import { CoingeckoService } from '../coingecko/coingecko.service';
+import { mapPaginatedExtendedSongsDto } from './mapper/mapper';
 
 @Injectable()
 export class MarketplaceService {
@@ -24,6 +26,8 @@ export class MarketplaceService {
   constructor(
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
+    private readonly configService: ConfigService,
+    private readonly coingeckoService: CoingeckoService,
   ) {}
 
   async findAll(
@@ -64,8 +68,30 @@ export class MarketplaceService {
       const songs = result.songs;
       const total = result.count;
 
+      const storagePriceUsd =
+        this.configService.get<number>('storage_cost_usd');
+
+      const updatedSongs = await Promise.all(
+        songs.map(async (songEntity) => {
+          const songDto = SongDto.fromEntity(songEntity);
+
+          const songPriceInUsd = await this.coingeckoService.convertNearToUsd(
+            songEntity.price,
+          );
+          songDto.priceInUsd = songPriceInUsd
+            ? songPriceInUsd.toString()
+            : null;
+
+          songDto.storagePriceUsd = storagePriceUsd
+            ? storagePriceUsd.toString()
+            : null;
+
+          return songDto;
+        }),
+      );
+
       return new ServiceResult<PaginatedDto<SongDto>>(
-        mapPaginatedSongsDto(songs, total, take, skip),
+        mapPaginatedExtendedSongsDto(updatedSongs, total, take, skip),
       );
     } catch (error) {
       this.logger.error('SongService - findAllMarketplaceArtistSongs', error);
@@ -89,11 +115,22 @@ export class MarketplaceService {
       }
 
       const song = await this.songRepository.findOne(findOneNotSoldSong(id));
-
       if (!song) {
         return new NotFound<SongDto>(`Song not found!`);
       }
-      return new ServiceResult<SongDto>(SongDto.fromEntity(song));
+
+      const songDto = SongDto.fromEntity(song);
+      const songPriceInUsd = await this.coingeckoService.convertNearToUsd(
+        song.price,
+      );
+      songDto.priceInUsd = songPriceInUsd ? songPriceInUsd.toString() : null;
+      const storagePriceUsd =
+        this.configService.get<number>('storage_cost_usd');
+      songDto.storagePriceUsd = storagePriceUsd
+        ? storagePriceUsd.toString()
+        : null;
+
+      return new ServiceResult<SongDto>(songDto);
     } catch (error) {
       this.logger.error('SongService - findOneSong', error);
       return new ServerError<SongDto>(`Can't get song`);

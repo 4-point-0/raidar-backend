@@ -7,9 +7,13 @@ import { Licence } from '../licence/licence.entity';
 import { User } from '../user/user.entity';
 import { MarketplaceController } from './marketplace.controller';
 import { MarketplaceService } from './marketplace.service';
+import { CoingeckoModule } from '../coingecko/coingecko.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Song, File, Album, User, Licence])],
+  imports: [
+    TypeOrmModule.forFeature([Song, File, Album, User, Licence]),
+    CoingeckoModule,
+  ],
   providers: [MarketplaceService],
   controllers: [MarketplaceController],
 })

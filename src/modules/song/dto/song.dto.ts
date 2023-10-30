@@ -4,6 +4,7 @@ import { FileDto } from '../../../modules/file/dto/file.dto';
 import { BaseDto } from '../../../common/dto/base.dto';
 import { SongAlbumDto } from './song-album.dto';
 import { LicenceDto } from '../../../modules/licence/dto/licence.dto';
+import { IsOptional } from 'class-validator';
 
 export class SongDto extends BaseDto implements Readonly<SongDto> {
   @ApiProperty({
@@ -106,6 +107,14 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     type: String,
   })
   pka: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  priceInUsd?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  storagePriceUsd?: string;
 
   @ApiProperty({
     type: String,
