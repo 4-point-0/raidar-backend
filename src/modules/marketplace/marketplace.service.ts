@@ -8,14 +8,16 @@ import {
   NotFound,
   ServerError,
 } from '../../helpers/response/errors';
-import { SongDto } from '../song/dto/song.dto';
+import { ExtendedSongDto, SongDto } from '../song/dto/song.dto';
 import { Role } from '../../common/enums/enum';
 import { findAllMarketplaceArtistSongs } from './queries/marketplace.queries';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { SongFiltersDto } from './dto/songs.filter.dto';
 import { validate } from 'uuid';
 import { findOneNotSoldSong } from '../song/queries/song.queries';
-import { mapPaginatedSongsDto } from '../song/mappers/song.mappers';
+import { ConfigService } from '@nestjs/config';
+import { CoingeckoService } from '../coingecko/coingecko.service';
+import { mapPaginatedExtendedSongsDto } from './mapper/mapper';
 
 @Injectable()
 export class MarketplaceService {
@@ -24,6 +26,8 @@ export class MarketplaceService {
   constructor(
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
+    private readonly configService: ConfigService,
+    private readonly coingeckoService: CoingeckoService,
   ) {}
 
   async findAll(
@@ -64,8 +68,26 @@ export class MarketplaceService {
       const songs = result.songs;
       const total = result.count;
 
-      return new ServiceResult<PaginatedDto<SongDto>>(
-        mapPaginatedSongsDto(songs, total, take, skip),
+      const storagePriceUsd =
+        this.configService.get<number>('storage_cost_usd');
+
+      const updatedSongs = await Promise.all(
+        songs.map(async (songEntity) => {
+          const songDto = SongDto.fromEntity(songEntity);
+          const songPriceInUsd = await this.coingeckoService.convertNearToUsd(
+            songEntity.price,
+          );
+          const priceInUsdString = songPriceInUsd.toString();
+          return ExtendedSongDto.fromSongDto(
+            songDto,
+            priceInUsdString,
+            storagePriceUsd,
+          );
+        }),
+      );
+
+      return new ServiceResult<PaginatedDto<ExtendedSongDto>>(
+        mapPaginatedExtendedSongsDto(updatedSongs, total, take, skip),
       );
     } catch (error) {
       this.logger.error('SongService - findAllMarketplaceArtistSongs', error);

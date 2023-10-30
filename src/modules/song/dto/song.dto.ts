@@ -206,3 +206,23 @@ export class SongDto extends BaseDto implements Readonly<SongDto> {
     });
   }
 }
+
+export class ExtendedSongDto extends SongDto {
+  priceInUsd: string;
+  storagePriceUsd: number;
+
+  constructor(songDto: SongDto, priceInUsd: string, storagePriceUsd: number) {
+    super();
+    Object.assign(this, songDto);
+    this.priceInUsd = priceInUsd;
+    this.storagePriceUsd = storagePriceUsd;
+  }
+
+  public static fromSongDto(
+    songDto: SongDto,
+    priceInUsd: string,
+    storagePriceUsd: number,
+  ) {
+    return new ExtendedSongDto(songDto, priceInUsd, storagePriceUsd);
+  }
+}

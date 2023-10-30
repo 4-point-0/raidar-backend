@@ -11,6 +11,8 @@ import { Album } from '../album/album.entity';
 import { File } from '../file/file.entity';
 import { Licence } from '../licence/licence.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CoingeckoService } from '../coingecko/coingecko.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('MarketplaceService', () => {
   let service: MarketplaceService;
@@ -30,6 +32,29 @@ describe('MarketplaceService', () => {
             get: jest.fn((key: string) => {
               if (key === 'near-usd') {
                 return 1.5;
+              }
+              return null;
+            }),
+          },
+        },
+        {
+          provide: CoingeckoService,
+          useValue: {
+            getCurrentNearPrice: jest.fn().mockResolvedValue(1),
+            convertNearToUsd: jest.fn().mockResolvedValue(1),
+            convertUsdToNear: jest.fn().mockResolvedValue(1),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'sengrid.email') {
+                return '123';
+              }
+
+              if (key === 'sendgrid.api_key') {
+                return '123';
               }
               return null;
             }),
@@ -130,9 +155,9 @@ describe('MarketplaceService', () => {
               seller: mockUser,
               buyer: mockUser,
               tx_hash: 'Test tx hash 1',
-              price: 10.0,
             }),
           ],
+          price: 10.0,
         }),
       ];
 
