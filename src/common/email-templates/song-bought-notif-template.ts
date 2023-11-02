@@ -31,12 +31,12 @@ export const songBoughtTemplate = (songName: string) => `
 
 <body>
   <div class="container">
-    <img src="https://app.raidar.us/images/berklee-logo.svg" alt="Berklee Logo" />
+    <img src="https://raidar-platform-images.s3.eu-central-1.amazonaws.com/berklee-logo.png" alt="Berklee Logo" />
     <h1>Congratulations, Your Song Was Bought!</h1>
     <p>Your song "${songName}" has been purchased!</p>
     <p>Sincerely,</p>
     <p>The Raidar Team</p>
-    <img id="built-on-near" src="https://app.raidar.us/images/built-on-near-black.svg" alt="Built on NEAR Logo" />
+    <img id="built-on-near" src="https://raidar-platform-images.s3.eu-central-1.amazonaws.com/built-on-near-black.png" alt="Built on NEAR Logo" />
   </div>
 </body>
 
