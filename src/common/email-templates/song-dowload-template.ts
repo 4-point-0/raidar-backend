@@ -49,14 +49,14 @@ export const songDownloadTemplate = (songName: string, downloadUrl: string) => `
 
 <body>
   <div class="container">
-    <img src="https://app.raidar.us/images/berklee-logo.svg" alt="Berklee Logo"/>
+    <img src="https://raidar-platform-images.s3.eu-central-1.amazonaws.com/berklee-logo.png" alt="Berklee Logo"/>
     <h1>Your Song Purchase is Complete!</h1>
     <p>Thank you for purchasing the song ${songName}.</p>
     <p>Click the link below to download:</p>
-    <a href="${downloadUrl}" class="button">Download Song</a>
+    <a href="${downloadUrl}" style="color: black; text-decoration: none;" class="button">Download Song</a>
     <p>Sincerely,</p>
     <p>The Raidar Team</p>
-    <img id="built-on-near" src="https://app.raidar.us/images/built-on-near-black.svg" alt="Built on NEAR Logo" />
+    <img id="built-on-near" src="https://raidar-platform-images.s3.eu-central-1.amazonaws.com/built-on-near-black.png" alt="Built on NEAR Logo" />
   </div>
 </body>
 
