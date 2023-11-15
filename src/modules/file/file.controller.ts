@@ -22,7 +22,7 @@ import { Role } from '../../common/enums/enum';
 import { FileDto } from './dto/file.dto';
 import { abiBodyOptionsFileUpload } from './swagger/api-body-options';
 import { HttpExceptionFilter } from '../../helpers/filters/http-exception.filter';
-import { MAX_FILE_SIZE_150MB } from '../../common/constants';
+import { MAX_FILE_SIZE_1000MB } from '../../common/constants';
 
 @ApiTags('file')
 @Controller('file')
@@ -45,7 +45,7 @@ export class FileController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_150MB }),
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_1000MB }),
         ],
       }),
     )
@@ -76,7 +76,7 @@ export class FileController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_150MB }),
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE_1000MB }),
         ],
       }),
     )
