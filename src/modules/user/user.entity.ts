@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Song } from '../song/song.entity';
 import { Licence } from '../licence/licence.entity';
+import { Contract } from '../contract/contract.entity';
 
 @Entity()
 export class User {
@@ -60,4 +61,7 @@ export class User {
 
   @UpdateDateColumn({ type: 'timestamp', nullable: false })
   public updated_at: Date;
+
+  @OneToMany(() => Contract, (contract) => contract.artist)
+  contracts: Contract[];
 }

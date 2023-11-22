@@ -13,6 +13,7 @@ import { Album } from '../album/album.entity';
 import { File } from '../file/file.entity';
 import { BaseEntity } from '../../common/models/base.entity';
 import { Licence } from '../licence/licence.entity';
+import { Contract } from '../contract/contract.entity';
 
 @Unique(['music', 'art'])
 @Entity()
@@ -116,4 +117,7 @@ export class Song extends BaseEntity {
   })
   @Generated('increment')
   token_contract_id: number;
+
+  @OneToMany(() => Contract, (contract) => contract.song)
+  contracts: Contract[];
 }

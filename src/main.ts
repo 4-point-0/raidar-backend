@@ -15,6 +15,7 @@ import { FileModule } from './modules/file/file.module';
 import { TasksModule } from './modules/task/task.module';
 import { CoingeckoModule } from './modules/coingecko/coingecko.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
+import { ContractModule } from './modules/contract/contract.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +39,7 @@ async function bootstrap() {
       SongModule,
       FileModule,
       MarketplaceModule,
+      ContractModule,
     ],
   });
 
