@@ -15,6 +15,7 @@ import {
   findBaseContractsByArtist,
   findSignedContractsByArtist,
   findAllContractsByUser,
+  findBaseContractsForSongID,
 } from './queries/contract.queries';
 import { ServerError, NotFound } from '../../helpers/response/errors';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
@@ -90,14 +91,16 @@ export class ContractService {
     songId: string,
   ): Promise<ServiceResult<ContractDto>> {
     try {
-      const contract = await this.contractRepository.findOne({
-        where: { song: { id: songId } },
-      });
+      const queryOptions = findBaseContractsForSongID(songId);
+
+      const contract = await this.contractRepository.findOne(queryOptions);
+
       if (!contract) {
         return new NotFound<ContractDto>(
           'Base Contract not found for provided song ID',
         );
       }
+
       return new ServiceResult<ContractDto>(ContractDto.fromEntity(contract));
     } catch (error) {
       this.logger.error('ContractService - findContractBySongId', error);

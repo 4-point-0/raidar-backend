@@ -46,3 +46,10 @@ export const findAllContractsByUser = (
     skip,
   };
 };
+
+export const findBaseContractsForSongID = (songId: string) => {
+  return {
+    where: { song: { id: songId }, customer: IsNull() },
+    relations: ['artist', 'customer', 'song'],
+  };
+};
