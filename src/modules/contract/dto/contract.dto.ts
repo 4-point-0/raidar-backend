@@ -51,12 +51,6 @@ export class ContractDto extends BaseDto {
   }
 
   public static fromEntity(entity: Contract) {
-    if (!entity) {
-      throw new Error('No contract entity provided');
-    }
-    if (!entity.artist) {
-      throw new Error('Contract entity does not have an artist');
-    }
     return this.from({
       id: entity.id,
       artistId: entity.artist.id,
