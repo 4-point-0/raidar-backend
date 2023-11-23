@@ -70,10 +70,10 @@ export class ContractController {
     name: 'id',
     required: true,
     type: String,
-    description: 'Contract ID',
+    description: 'Song ID',
   })
   async findOne(@Param('id') id: string) {
-    return this.contractService.findContractById(id);
+    return this.contractService.findBaseContractBySongId(id);
   }
 
   @Get('artist/base')

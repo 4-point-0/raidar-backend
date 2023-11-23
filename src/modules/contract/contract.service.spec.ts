@@ -94,9 +94,9 @@ describe('ContractService', () => {
     });
   });
 
-  describe('findContractById', () => {
-    it('should find a contract by id', async () => {
-      const result = await service.findContractById('contract-id');
+  describe('findBaseContractBySongId', () => {
+    it('should find a contract by songid', async () => {
+      const result = await service.findBaseContractBySongId('song-id');
       expect(result).toBeDefined();
     });
   });

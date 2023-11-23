@@ -86,15 +86,21 @@ export class ContractService {
     }
   }
 
-  async findContractById(id: string): Promise<ServiceResult<ContractDto>> {
+  async findBaseContractBySongId(
+    songId: string,
+  ): Promise<ServiceResult<ContractDto>> {
     try {
-      const contract = await this.contractRepository.findOne({ where: { id } });
+      const contract = await this.contractRepository.findOne({
+        where: { song: { id: songId } },
+      });
       if (!contract) {
-        return new NotFound<ContractDto>('Contract not found');
+        return new NotFound<ContractDto>(
+          'Base Contract not found for provided song ID',
+        );
       }
       return new ServiceResult<ContractDto>(ContractDto.fromEntity(contract));
     } catch (error) {
-      this.logger.error('ContractService - findContractById', error);
+      this.logger.error('ContractService - findContractBySongId', error);
       return new ServerError<ContractDto>('Unexpected error occurred');
     }
   }
