@@ -6,6 +6,7 @@ import { AwsStorageService } from '../file/aws-storage.service';
 import { Song } from '../song/song.entity';
 import { User } from '../user/user.entity';
 import { song_1, user_artist_1 } from '../../../test/mock-data';
+import { Role } from '../../common/enums/enum';
 
 describe('ContractService', () => {
   let service: ContractService;
@@ -17,7 +18,12 @@ describe('ContractService', () => {
         {
           provide: getRepositoryToken(Contract),
           useValue: {
-            create: jest.fn().mockReturnValue(new Contract()),
+            create: jest.fn().mockImplementation((contractData) => ({
+              ...new Contract(),
+              ...contractData,
+              artist: user_artist_1 as User,
+              song: song_1 as Song,
+            })),
             save: jest.fn().mockImplementation(async (contract: Contract) => ({
               ...contract,
               artist: user_artist_1 as User,
@@ -71,13 +77,19 @@ describe('ContractService', () => {
 
   describe('createContract', () => {
     it('should create a contract', async () => {
+      const localUserArtist = {
+        ...user_artist_1,
+        roles: [Role.Artist],
+      };
+
       const createContractDto = { songId: 'song-id' };
       const file = Buffer.from('test');
       const result = await service.createContract(
-        user_artist_1 as User,
+        localUserArtist as User,
         createContractDto,
         file as any,
       );
+
       expect(result).toBeDefined();
     });
   });

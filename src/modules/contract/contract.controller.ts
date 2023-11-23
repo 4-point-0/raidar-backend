@@ -30,7 +30,6 @@ import { AuthRequest } from '../../common/types/auth-request.type';
 import { CommonApiResponse } from '../../helpers/decorators/api-response-swagger.decorator';
 import { HttpExceptionFilter } from '../../helpers/filters/http-exception.filter';
 import { ApiPaginatedResponse } from '../../common/pagination/api-paginated-response';
-import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { fileFilter } from '../../helpers/file/image-filter';
 import { apiBodyOptionsCreateContract } from './swagger/api-body-options';
 
@@ -56,7 +55,7 @@ export class ContractController {
     @Req() request: AuthRequest,
     @UploadedFile() file: Express.Multer.File,
     @Body() createContractDto: CreateContractDto,
-  ): Promise<ContractDto> {
+  ) {
     return this.contractService.createContract(
       request.user,
       createContractDto,
@@ -73,7 +72,7 @@ export class ContractController {
     type: String,
     description: 'Contract ID',
   })
-  async findOne(@Param('id') id: string): Promise<ContractDto> {
+  async findOne(@Param('id') id: string) {
     return this.contractService.findContractById(id);
   }
 
@@ -87,7 +86,7 @@ export class ContractController {
     @Req() request: AuthRequest,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-  ): Promise<PaginatedDto<ContractDto>> {
+  ) {
     return this.contractService.findAllBaseContractsByArtist(request.user.id, {
       page,
       limit,
@@ -104,7 +103,7 @@ export class ContractController {
     @Req() request: AuthRequest,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-  ): Promise<PaginatedDto<ContractDto>> {
+  ) {
     return this.contractService.findAllSignedContractsByArtist(
       request.user.id,
       { page, limit },
@@ -121,7 +120,7 @@ export class ContractController {
     @Req() request: AuthRequest,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-  ): Promise<PaginatedDto<ContractDto>> {
+  ) {
     return this.contractService.findAllContractsByUser(request.user.id, {
       page,
       limit,

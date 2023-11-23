@@ -5,7 +5,6 @@ import { Song } from '../../../modules/song/song.entity';
 import { PaginatedDto } from '../../../common/pagination/paginated-dto';
 
 export const createContractMapper = (
-  dto: ContractDto,
   artist: User,
   song: Song,
   pdfUrl: string,
