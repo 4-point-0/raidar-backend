@@ -10,7 +10,7 @@ export const findBaseContractsByArtist = (
       artist: { id: artistId },
       customer: IsNull(),
     },
-    relations: ['artist', 'customer', 'song'], // Make sure to include all necessary relations
+    relations: ['artist', 'customer', 'song'],
     take,
     skip,
   };
@@ -26,7 +26,7 @@ export const findSignedContractsByArtist = (
       artist: { id: artistId },
       customer: Not(IsNull()),
     },
-    relations: ['artist', 'customer', 'song'], // Make sure to include all necessary relations
+    relations: ['artist', 'customer', 'song'],
     take,
     skip,
   };
@@ -41,7 +41,7 @@ export const findAllContractsByUser = (
     where: {
       customer: { id: userId },
     },
-    relations: ['artist', 'customer', 'song'], // Make sure to include all necessary relations
+    relations: ['artist', 'customer', 'song'],
     take,
     skip,
   };
