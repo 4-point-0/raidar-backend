@@ -26,6 +26,7 @@ describe('AuthService', () => {
     licences_sold: [],
     licences_purchased: [],
     created_at: new Date(),
+    contracts: [],
     updated_at: new Date(),
   };
 
