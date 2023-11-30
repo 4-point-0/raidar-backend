@@ -40,18 +40,6 @@ export class ContractService {
     file: Express.Multer.File,
   ): Promise<ServiceResult<ContractDto>> {
     try {
-      const uploadResult = await this.awsStorageService.uploadFile(
-        file.buffer,
-        file.mimetype,
-      );
-      if (uploadResult instanceof ServerError) {
-        this.logger.error(
-          'Failed to upload file to AWS S3',
-          uploadResult.error,
-        );
-        return new ServerError<ContractDto>(uploadResult.error.message);
-      }
-
       const song = await this.songRepository.findOne({
         where: { id: createContractDto.songId },
         relations: ['user'],
@@ -65,6 +53,24 @@ export class ContractService {
         return new NotFound<ContractDto>(
           'Song does not have an associated artist',
         );
+      }
+
+      if (song.user.id != user.id && !user.roles.includes(Role.User)) {
+        return new NotFound<ContractDto>(
+          'Only the song owner can create the contract for it',
+        );
+      }
+
+      const uploadResult = await this.awsStorageService.uploadFile(
+        file.buffer,
+        file.mimetype,
+      );
+      if (uploadResult instanceof ServerError) {
+        this.logger.error(
+          'Failed to upload file to AWS S3',
+          uploadResult.error,
+        );
+        return new ServerError<ContractDto>(uploadResult.error.message);
       }
 
       const contractData = createContractMapper(
