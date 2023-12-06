@@ -21,6 +21,9 @@ import { ServerError, NotFound } from '../../helpers/response/errors';
 import { PaginatedDto } from '../../common/pagination/paginated-dto';
 import { Role } from '../../common/enums/enum';
 import { ServiceResult } from '../../helpers/response/result';
+import { EmailService } from '../email/email.service';
+import { ConfigService } from '@nestjs/config';
+import { contractCreatedTemplate } from '../../common/email-templates/contract-created-template';
 
 @Injectable()
 export class ContractService {
@@ -32,6 +35,8 @@ export class ContractService {
     @InjectRepository(Song)
     private songRepository: Repository<Song>,
     private awsStorageService: AwsStorageService,
+    private emailService: EmailService,
+    private configService: ConfigService,
   ) {}
 
   async createContract(
@@ -85,6 +90,22 @@ export class ContractService {
       }
 
       await this.contractRepository.save(contract);
+
+      await this.emailService.send({
+        to: contract.artist.email,
+        from: this.configService.get('sendgrid.email'),
+        subject: 'Your New Raidar Writen Agreemenet',
+        html: contractCreatedTemplate(Role.Artist, song.title, contract.pdfUrl),
+      });
+
+      if (contract.customer) {
+        await this.emailService.send({
+          to: contract.customer.email,
+          from: this.configService.get('sendgrid.email'),
+          subject: 'Your New Raidar Writen Agreemenet',
+          html: contractCreatedTemplate(Role.User, song.title, contract.pdfUrl),
+        });
+      }
 
       return new ServiceResult<ContractDto>(ContractDto.fromEntity(contract));
     } catch (error) {

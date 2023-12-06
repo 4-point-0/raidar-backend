@@ -7,6 +7,8 @@ import { Song } from '../song/song.entity';
 import { User } from '../user/user.entity';
 import { song_1, user_artist_1 } from '../../../test/mock-data';
 import { Role } from '../../common/enums/enum';
+import { EmailService } from '../email/email.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('ContractService', () => {
   let service: ContractService;
@@ -58,11 +60,32 @@ describe('ContractService', () => {
           },
         },
         {
+          provide: EmailService,
+          useValue: {
+            send: jest.fn().mockReturnValue(true),
+          },
+        },
+        {
           provide: AwsStorageService,
           useValue: {
             uploadFile: jest.fn().mockImplementation(async () => ({
               Location: 'url-of-uploaded-file',
             })),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'sengrid.email') {
+                return '123';
+              }
+
+              if (key === 'sendgrid.api_key') {
+                return '123';
+              }
+              return null;
+            }),
           },
         },
       ],
