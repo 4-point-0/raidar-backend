@@ -94,7 +94,7 @@ export class ContractService {
       await this.emailService.send({
         to: contract.artist.email,
         from: this.configService.get('sendgrid.email'),
-        subject: 'Your New Raidar Writen Agreemenet',
+        subject: 'Your New Raidar Written Agreement',
         html: contractCreatedTemplate(Role.Artist, song.title, contract.pdfUrl),
       });
 
@@ -102,7 +102,7 @@ export class ContractService {
         await this.emailService.send({
           to: contract.customer.email,
           from: this.configService.get('sendgrid.email'),
-          subject: 'Your New Raidar Writen Agreemenet',
+          subject: 'Your New Raidar Written Agreement',
           html: contractCreatedTemplate(Role.User, song.title, contract.pdfUrl),
         });
       }
