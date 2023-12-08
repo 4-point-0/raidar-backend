@@ -6,10 +6,11 @@ import { ContractController } from './contract.controller';
 import { AwsStorageService } from '../file/aws-storage.service';
 import { User } from '../user/user.entity';
 import { Song } from '../song/song.entity';
+import { EmailService } from '../email/email.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Contract, User, Song])],
-  providers: [ContractService, AwsStorageService],
+  providers: [ContractService, AwsStorageService, EmailService],
   controllers: [ContractController],
 })
 export class ContractModule {}
