@@ -36,6 +36,27 @@ export class ContractDto extends BaseDto {
   })
   pdfUrl: string;
 
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Name of the artist who created the song',
+  })
+  artistName?: string;
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Name of the customer who purchased the song, if applicable',
+  })
+  customerName?: string;
+
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: 'Name of the song associated with the contract',
+  })
+  songName: string;
+
   public static from(dto: Partial<ContractDto>) {
     const contractDto = new ContractDto();
     contractDto.id = dto.id;
@@ -47,6 +68,9 @@ export class ContractDto extends BaseDto {
     contractDto.updated_at = dto.updated_at;
     contractDto.created_by_id = dto.created_by_id;
     contractDto.updated_by_id = dto.updated_by_id;
+    contractDto.artistName = dto.artistName;
+    contractDto.customerName = dto.customerName;
+    contractDto.songName = dto.songName;
     return contractDto;
   }
 
@@ -61,6 +85,9 @@ export class ContractDto extends BaseDto {
       updated_at: entity.updated_at,
       created_by_id: entity.created_by_id,
       updated_by_id: entity.updated_by_id,
+      artistName: entity.artist?.first_name,
+      customerName: entity.customer?.first_name,
+      songName: entity.song?.title,
     });
   }
 }
