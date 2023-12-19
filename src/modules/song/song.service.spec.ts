@@ -21,6 +21,7 @@ import { ServiceResult } from '../../helpers/response/result';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 import { CoingeckoService } from '../coingecko/coingecko.service';
+import { StripeService } from '../stripe/stripe.service';
 
 describe('SongService', () => {
   let songService: SongService;
@@ -123,6 +124,12 @@ describe('SongService', () => {
           provide: EmailService,
           useValue: {
             send: jest.fn().mockReturnValue(true),
+          },
+        },
+        {
+          provide: StripeService,
+          useValue: {
+            createPrice: jest.fn().mockReturnValue('1'),
           },
         },
         {

@@ -40,4 +40,7 @@ export class Licence extends BaseEntity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   sold_price: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  public invoiceId: string;
 }

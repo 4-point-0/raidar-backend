@@ -111,6 +111,9 @@ export class Song extends BaseEntity {
   })
   price: number;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  priceId: string;
+
   @Column({
     type: 'integer',
     nullable: false,
