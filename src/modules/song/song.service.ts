@@ -121,6 +121,12 @@ export class SongService {
       if (!user) {
         return new NotFound<SongDto>(`User not found!`);
       }
+
+      const stripePrice = await this.stripeService.createPrice(dto.price);
+      if (!stripePrice) {
+        throw new Error('Failed to create price in Stripe');
+      }
+
       const priceInNear = await this.coingeckoService.convertUsdToNear(
         dto.price,
       );
@@ -129,11 +135,7 @@ export class SongService {
       const new_song = this.songRepository.create(
         createSongMapper(dto, user, album, music_file, art_file),
       );
-      const stripePrice = await this.stripeService.createPrice(dto.price);
-      if (!stripePrice) {
-        throw new Error('Failed to create price in Stripe');
-      }
-      new_song.priceId = stripePrice.id;
+      new_song.price_id = stripePrice.id;
       await this.songRepository.save(new_song);
 
       const song = await this.songRepository.findOne(findOneSong(new_song.id));

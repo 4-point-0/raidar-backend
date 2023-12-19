@@ -14,6 +14,11 @@ import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { Licence } from '../licence/licence.entity';
+import { EmailService } from '../email/email.service';
+import { songBoughtTemplate } from '../../common/email-templates/song-bought-notif-template';
+import { songDownloadTemplate } from '../../common/email-templates/song-dowload-template';
+import { invoiceLinkTemplate } from '../../common/email-templates/invoice-template';
+import { findSongWithUser } from '../song/queries/song.queries';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
@@ -32,6 +37,7 @@ export class StripeService {
     @InjectRepository(Licence)
     private licenceRepository: Repository<Licence>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly emailService: EmailService,
   ) {
     this.stripe = new Stripe(this.configService.get('stripe.api_key'), {
       apiVersion: this.configService.get('stripe.api_version'),
@@ -41,9 +47,9 @@ export class StripeService {
   async createPrice(amount: number): Promise<Stripe.Price> {
     try {
       const price = await this.stripe.prices.create({
-        unit_amount: amount * 100,
+        unit_amount: Math.round(amount * 100),
         currency: 'usd',
-        product: 'prod_generic_song',
+        product: this.configService.get('stripe.base_product'),
       });
       return price;
     } catch (error) {
@@ -53,19 +59,52 @@ export class StripeService {
   }
 
   async createCheckoutSession(
-    songId: string,
-    userId: string,
-    priceId: string,
+    song_id: string,
+    user_id: string,
   ): Promise<ServiceResult<Stripe.Checkout.Session>> {
     try {
-      //TODO UPDATE THE SUCCESS AND CANCEL URL
+      const songQuery = findSongWithUser(song_id);
+      const song = await this.songRepository.findOne(songQuery);
+
+      if (!song) {
+        return new NotFound<Stripe.Checkout.Session>(`Song not found`);
+      }
+
+      const user = await this.userRepository.findOne({
+        where: { id: user_id },
+      });
+      if (!user) {
+        return new NotFound<Stripe.Checkout.Session>(`User not found!`);
+      }
+
+      const existingLicence = await this.licenceRepository.findOne({
+        where: { song: { id: song.id }, buyer: { id: user.id } },
+      });
+
+      if (existingLicence) {
+        return new BadRequest<Stripe.Checkout.Session>(
+          `Buyer already owns a licence for this song!`,
+        );
+      }
+
+      const seller = await this.userRepository.findOne({
+        where: { id: song.user.id },
+      });
+
+      if (!seller) {
+        return new NotFound<Stripe.Checkout.Session>(`Seller not found!`);
+      }
+
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: [{ price: priceId, quantity: 1 }],
-        metadata: { songId, userId },
+        line_items: [{ price: song.price_id, quantity: 1 }],
+        metadata: { song_id, user_id },
         mode: 'payment',
-        success_url: 'raidar.us',
-        cancel_url: 'raidar.us',
+        success_url: this.configService.get('stripe.success_url'),
+        cancel_url: this.configService.get('stripe.error_url'),
+        invoice_creation: {
+          enabled: true,
+        },
       });
       return new ServiceResult<Stripe.Checkout.Session>(session);
     } catch (error) {
@@ -101,11 +140,6 @@ export class StripeService {
     if (event.type === 'checkout.session.completed') {
       return await this.checkoutSessionCompleted(event.data.object);
     }
-
-    if (event.type === 'charge.refunded') {
-      return await this.chargeRefunded(event.data.object.invoice);
-    }
-
     return new ServiceResult<boolean>(true);
   }
 
@@ -113,17 +147,6 @@ export class StripeService {
     session: any,
   ): Promise<ServiceResult<boolean>> {
     try {
-      if (!session.client_reference_id) {
-        return new BadRequest<boolean>(`User not found!`);
-      }
-
-      const user_id = session.client_reference_id;
-
-      const user = await this.userRepository.findOne({ where: user_id });
-      if (!user) {
-        return new NotFound<boolean>(`User not found!`);
-      }
-
       let invoice_pdf = '';
       if (session.invoice) {
         const invoice = await this.stripe.invoices.retrieve(session.invoice);
@@ -132,45 +155,26 @@ export class StripeService {
           invoice_pdf = invoice.invoice_pdf;
         }
       }
-      const song = await this.songRepository.findOne({
-        where: { id: session.songId },
-      });
+      const songQuery = findSongWithUser(session.metadata.song_id);
+      const song = await this.songRepository.findOne(songQuery);
 
       if (!song) {
         return new NotFound<boolean>(`Song not found`);
       }
 
       const buyer = await this.userRepository.findOne({
-        where: { id: session.userId },
+        where: { id: session.metadata.user_id },
       });
-
-      if (!buyer) {
-        return new NotFound<boolean>(`Buyer not found!`);
-      }
-
-      const existingLicence = await this.licenceRepository.findOne({
-        where: { song: { id: song.id }, buyer: { id: buyer.id } },
-      });
-
-      if (existingLicence) {
-        return new BadRequest<boolean>(
-          `Buyer already owns a licence for this song!`,
-        );
-      }
 
       const seller = await this.userRepository.findOne({
         where: { id: song.user.id },
       });
 
-      if (!seller) {
-        return new NotFound<boolean>(`Seller not found!`);
-      }
-
       const licence = this.licenceRepository.create();
       licence.song = song;
       licence.seller = seller;
       licence.buyer = buyer;
-      licence.invoiceId = session.invoice.id;
+      licence.invoice_id = session.invoice;
 
       const near_usd = await this.cacheManager.get<string>('near-usd');
       licence.sold_price = nearAPI.utils.format.parseNearAmount(
@@ -179,36 +183,31 @@ export class StripeService {
 
       await this.licenceRepository.save(licence);
 
-      //TODO Email sa invoice-om
+      await this.emailService.send({
+        to: seller.email,
+        from: this.configService.get('sendgrid.email'),
+        subject: 'Your Song Has Been Sold',
+        html: songBoughtTemplate(song.title),
+      });
+
+      await this.emailService.send({
+        to: buyer.email,
+        from: this.configService.get('sendgrid.email'),
+        subject: 'Download Your Raidar Song',
+        html: songDownloadTemplate(song.title, song.music.url),
+      });
+
+      await this.emailService.send({
+        to: buyer.email,
+        from: this.configService.get('sendgrid.email'),
+        subject: 'Your Raidar Invoice',
+        html: invoiceLinkTemplate(invoice_pdf),
+      });
 
       return new ServiceResult<boolean>(true);
     } catch (error) {
       this.logger.error('StripeService - checkoutSessionCompleted', error);
       return new ServerError<boolean>(`Checkout session completed error`);
-    }
-  }
-
-  private async chargeRefunded(
-    invoice_id: string,
-  ): Promise<ServiceResult<boolean>> {
-    try {
-      const licence = await this.licenceRepository.findOne({
-        where: { invoiceId: invoice_id },
-      });
-
-      if (!licence) {
-        this.logger.error('No licence found for the given invoice ID');
-        return new NotFound<boolean>(
-          'Licence not found for the given invoice ID',
-        );
-      }
-
-      await this.licenceRepository.remove(licence);
-
-      return new ServiceResult<boolean>(true);
-    } catch (error) {
-      this.logger.error('StripeService - handleChargeRefunded', error);
-      throw new Error(`Charge Refunded Error: ${error.message}`);
     }
   }
 }

@@ -5,41 +5,46 @@ import {
   Req,
   UseFilters,
   HttpCode,
-  Body,
+  Param,
+  RawBodyRequest,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StripeService } from './stripe.service';
 import { HttpExceptionFilter } from '../../helpers/filters/http-exception.filter';
-import { CommonApiResponse } from '../../helpers/decorators/api-response-swagger.decorator';
-import { CreateSessionDto } from './dto/create-session.dto';
+import { AuthRequest } from '../../common/types/auth-request.type';
+import { Auth } from '../../helpers/decorators/auth.decorator';
+import { Role } from '../../common/enums/enum';
+import { handle } from '../../helpers/response/handle';
 
 @ApiTags('stripe')
 @Controller('stripe')
 export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 
-  @Post('session')
+  @Post('session/:songId')
+  @Auth(Role.User)
   @UseFilters(new HttpExceptionFilter())
-  @CommonApiResponse({ type: CreateSessionDto }) // Adjust response type if needed
   @HttpCode(200)
-  async createSession(@Body() createSessionDto: CreateSessionDto) {
-    return this.stripeService.createCheckoutSession(
-      createSessionDto.songId,
-      createSessionDto.userId,
-      createSessionDto.priceId,
+  async createSession(
+    @Req() request: AuthRequest,
+    @Param('songId') songId: string,
+  ) {
+    return handle(
+      await this.stripeService.createCheckoutSession(songId, request.user.id),
     );
   }
 
   @Post('webhook')
   @UseFilters(new HttpExceptionFilter())
-  @HttpCode(200)
-  async handleWebhook(@Req() request: any) {
+  async chargeCaptured(@Req() request: RawBodyRequest<Request>) {
     if (!request.headers['stripe-signature']) {
       throw new BadRequestException('Missing stripe-signature header');
     }
-    return this.stripeService.constructEventFromPayload(
-      request.headers['stripe-signature'],
-      request.rawBody,
+    return handle(
+      await this.stripeService.constructEventFromPayload(
+        request.headers['stripe-signature'],
+        request.rawBody,
+      ),
     );
   }
 }
