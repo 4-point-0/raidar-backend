@@ -36,6 +36,14 @@ export const configuration = () => ({
     api_key: process.env.SENDGRID_API_KEY,
     email: process.env.SENDGRID_EMAIL,
   },
+  stripe: {
+    api_key: process.env.STRIPE_API_KEY,
+    api_version: process.env.STRIPE_API_VERSION,
+    webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+    base_product: process.env.STRIPE_BASE_PRODUCT,
+    success_url: process.env.STRIPE_SUCCESS_URL,
+    error_url: process.env.STRIPE_ERROR_URL,
+  },
   email_domains: process.env.EMAIL_DOMAINS,
   storage_cost_usd: process.env.STORAGE_COST_USD,
 });

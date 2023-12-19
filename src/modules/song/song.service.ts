@@ -41,6 +41,7 @@ import { ConfigService } from '@nestjs/config';
 import { songDownloadTemplate } from '../../common/email-templates/song-dowload-template';
 import { songBoughtTemplate } from '../../common/email-templates/song-bought-notif-template';
 import { CoingeckoService } from '../coingecko/coingecko.service';
+import { StripeService } from '../stripe/stripe.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
@@ -64,6 +65,7 @@ export class SongService {
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
     private readonly coingeckoService: CoingeckoService,
+    private readonly stripeService: StripeService,
   ) {}
 
   async createSong(dto: CreateSongDto): Promise<ServiceResult<SongDto>> {
@@ -119,6 +121,12 @@ export class SongService {
       if (!user) {
         return new NotFound<SongDto>(`User not found!`);
       }
+
+      const stripePrice = await this.stripeService.createPrice(dto.price);
+      if (!stripePrice) {
+        throw new Error('Failed to create price in Stripe');
+      }
+
       const priceInNear = await this.coingeckoService.convertUsdToNear(
         dto.price,
       );
@@ -127,7 +135,7 @@ export class SongService {
       const new_song = this.songRepository.create(
         createSongMapper(dto, user, album, music_file, art_file),
       );
-
+      new_song.price_id = stripePrice.id;
       await this.songRepository.save(new_song);
 
       const song = await this.songRepository.findOne(findOneSong(new_song.id));

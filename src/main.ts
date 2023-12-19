@@ -16,9 +16,13 @@ import { TasksModule } from './modules/task/task.module';
 import { CoingeckoModule } from './modules/coingecko/coingecko.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { ContractModule } from './modules/contract/contract.module';
+import { StripeModule } from './modules/stripe/stripe.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe());
 
@@ -40,6 +44,7 @@ async function bootstrap() {
       FileModule,
       MarketplaceModule,
       ContractModule,
+      StripeModule,
     ],
   });
 
