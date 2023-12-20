@@ -46,4 +46,10 @@ export const configuration = () => ({
   },
   email_domains: process.env.EMAIL_DOMAINS,
   storage_cost_usd: process.env.STORAGE_COST_USD,
+  near: {
+    network_id: process.env.NEAR_NETWORK_ID,
+    nft_contract_account_id: process.env.NEAR_NFT_CONTRACT_ACCOUNT_ID,
+    master_account_id: process.env.NEAR_MASTER_ACCOUNT_ID,
+    master_account_private_key: process.env.NEAR_MASTER_ACCOUNT_PRIVATE_KEY,
+  },
 });
