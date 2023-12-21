@@ -5,10 +5,11 @@ import { Contract } from './contract.entity';
 import { AwsStorageService } from '../file/aws-storage.service';
 import { Song } from '../song/song.entity';
 import { User } from '../user/user.entity';
-import { song_1, user_artist_1 } from '../../../test/mock-data';
+import { contract_list, song_1, user_artist_1 } from '../../../test/mock-data';
 import { Role } from '../../common/enums/enum';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
+import * as ContractQueries from './queries/contract.queries';
 
 describe('ContractService', () => {
   let service: ContractService;
@@ -37,16 +38,6 @@ describe('ContractService', () => {
               song: song_1 as Song,
               id,
             })),
-            findAndCount: jest.fn().mockImplementation(async () => [
-              [
-                {
-                  ...new Contract(),
-                  artist: user_artist_1 as User,
-                  song: song_1 as Song,
-                },
-              ],
-              1,
-            ]),
           },
         },
         {
@@ -126,6 +117,14 @@ describe('ContractService', () => {
 
   describe('findAllBaseContractsByArtist', () => {
     it('should find all base contracts by an artist', async () => {
+      const mockQueryResult = {
+        result: contract_list,
+        total: contract_list.length,
+      };
+
+      jest
+        .spyOn(ContractQueries, 'findBaseContractsByArtist')
+        .mockResolvedValue(mockQueryResult);
       const result = await service.findAllBaseContractsByArtist(
         user_artist_1.id,
         { page: 1, limit: 10 },
@@ -136,6 +135,14 @@ describe('ContractService', () => {
 
   describe('findAllSignedContractsByArtist', () => {
     it('should find all signed contracts by an artist', async () => {
+      const mockQueryResult = {
+        result: contract_list,
+        total: contract_list.length,
+      };
+
+      jest
+        .spyOn(ContractQueries, 'findSignedContractsByArtist')
+        .mockResolvedValue(mockQueryResult);
       const result = await service.findAllSignedContractsByArtist(
         user_artist_1.id,
         { page: 1, limit: 10 },
@@ -146,6 +153,15 @@ describe('ContractService', () => {
 
   describe('findAllContractsByUser', () => {
     it('should find all contracts by a user', async () => {
+      const mockQueryResult = {
+        result: contract_list,
+        total: contract_list.length,
+      };
+
+      jest
+        .spyOn(ContractQueries, 'findAllContractsByUser')
+        .mockResolvedValue(mockQueryResult);
+
       const result = await service.findAllContractsByUser(user_artist_1.id, {
         page: 1,
         limit: 10,

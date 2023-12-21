@@ -141,11 +141,15 @@ export class ContractService {
   ): Promise<ServiceResult<PaginatedDto<ContractDto>>> {
     try {
       const { take, skip } = options;
-      const [contracts, total] = await this.contractRepository.findAndCount(
-        findBaseContractsByArtist(artistId, take, skip),
+      const { result, total } = await findBaseContractsByArtist(
+        this.contractRepository,
+        artistId,
+        take,
+        skip,
       );
+
       return new ServiceResult<PaginatedDto<ContractDto>>(
-        mapPaginatedContractsDto(contracts, total, take, skip),
+        mapPaginatedContractsDto(result, total, take, skip),
       );
     } catch (error) {
       this.logger.error(
@@ -164,11 +168,15 @@ export class ContractService {
   ): Promise<ServiceResult<PaginatedDto<ContractDto>>> {
     try {
       const { take, skip } = options;
-      const [contracts, total] = await this.contractRepository.findAndCount(
-        findSignedContractsByArtist(artistId, take, skip),
+      const { result, total } = await findSignedContractsByArtist(
+        this.contractRepository,
+        artistId,
+        take,
+        skip,
       );
+
       return new ServiceResult<PaginatedDto<ContractDto>>(
-        mapPaginatedContractsDto(contracts, total, take, skip),
+        mapPaginatedContractsDto(result, total, take, skip),
       );
     } catch (error) {
       this.logger.error(
@@ -187,11 +195,15 @@ export class ContractService {
   ): Promise<ServiceResult<PaginatedDto<ContractDto>>> {
     try {
       const { take, skip } = options;
-      const [contracts, total] = await this.contractRepository.findAndCount(
-        findAllContractsByUser(userId, take, skip),
+      const { result, total } = await findAllContractsByUser(
+        this.contractRepository,
+        userId,
+        take,
+        skip,
       );
+
       return new ServiceResult<PaginatedDto<ContractDto>>(
-        mapPaginatedContractsDto(contracts, total, take, skip),
+        mapPaginatedContractsDto(result, total, take, skip),
       );
     } catch (error) {
       this.logger.error('ContractService - findAllContractsByUser', error);
