@@ -19,6 +19,7 @@ import { songBoughtTemplate } from '../../common/email-templates/song-bought-not
 import { songDownloadTemplate } from '../../common/email-templates/song-dowload-template';
 import { invoiceLinkTemplate } from '../../common/email-templates/invoice-template';
 import { findSongWithUser } from '../song/queries/song.queries';
+import { NearProviderService } from '../near-provider/near-provider.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nearAPI = require('near-api-js');
@@ -38,6 +39,7 @@ export class StripeService {
     private licenceRepository: Repository<Licence>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly emailService: EmailService,
+    private readonly nearProviderService: NearProviderService,
   ) {
     this.stripe = new Stripe(this.configService.get('stripe.api_key'), {
       apiVersion: this.configService.get('stripe.api_version'),
@@ -165,6 +167,15 @@ export class StripeService {
       const buyer = await this.userRepository.findOne({
         where: { id: session.metadata.user_id },
       });
+
+      const isBoughtOnNear = await this.nearProviderService.buyForUser(
+        song.token_contract_id.toString(),
+        buyer.id,
+      );
+
+      if (!isBoughtOnNear) {
+        return new ServerError<boolean>(`Failed to buy song on NEAR`);
+      }
 
       const seller = await this.userRepository.findOne({
         where: { id: song.user.id },
