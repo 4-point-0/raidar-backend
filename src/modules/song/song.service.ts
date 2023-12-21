@@ -190,9 +190,14 @@ export class SongService {
       const skip = query.skip || 0;
       const title = query.title || '';
 
-      const [result, total] = await this.songRepository.findAndCount(
-        findAllArtistSongs(title, user_id, take, skip),
+      const { result, total } = await findAllArtistSongs(
+        this.songRepository,
+        title,
+        user_id,
+        take,
+        skip,
       );
+
       for (const song of result) {
         song.price = await this.coingeckoService.convertNearToUsd(song.price);
       }
@@ -221,9 +226,14 @@ export class SongService {
       const skip = query.skip || 0;
       const title = query.title || '';
 
-      const [result, total] = await this.songRepository.findAndCount(
-        findAllUserSongs(title, user_id, take, skip),
+      const { result, total } = await findAllUserSongs(
+        this.songRepository,
+        title,
+        user_id,
+        take,
+        skip,
       );
+
       for (const song of result) {
         song.price = await this.coingeckoService.convertNearToUsd(song.price);
       }

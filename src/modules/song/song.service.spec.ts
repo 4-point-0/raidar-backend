@@ -11,6 +11,7 @@ import {
   album_1,
   song_1,
   song_licence_1,
+  song_list,
   user_artist_1,
 } from '../../../test/mock-data';
 import { BadRequest, NotFound } from '../../helpers/response/errors';
@@ -22,6 +23,7 @@ import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 import { CoingeckoService } from '../coingecko/coingecko.service';
 import { StripeService } from '../stripe/stripe.service';
+import * as SongQueries from './queries/song.queries';
 
 describe('SongService', () => {
   let songService: SongService;
@@ -70,7 +72,6 @@ describe('SongService', () => {
             create: jest.fn().mockResolvedValue(song_1),
             save: jest.fn().mockResolvedValue(song_1),
             findOne: jest.fn().mockResolvedValue(song_1),
-            findAndCount: jest.fn().mockResolvedValue([[song_1], 1]),
           },
         },
         {
@@ -200,27 +201,47 @@ describe('SongService', () => {
 
   describe('findAllArtistSongs', () => {
     it('should return all songs of an artist', async () => {
-      songRepository.findAndCount = jest.fn().mockResolvedValue([[song_1], 1]);
+      const mockQueryResult = { result: song_list, total: song_list.length };
+
+      jest
+        .spyOn(SongQueries, 'findAllArtistSongs')
+        .mockResolvedValue(mockQueryResult);
       const result = await songService.findAllArtistSongs(
         create_song_dto.user_id,
         create_song_dto.roles,
         {},
       );
       expect(result).toBeDefined();
-      expect(songRepository.findAndCount).toHaveBeenCalled();
+      expect(SongQueries.findAllArtistSongs).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.any(Number),
+        expect.any(Number),
+      );
     });
   });
 
   describe('findAllUserSongs', () => {
     it('should return all songs of a user', async () => {
-      songRepository.findAndCount = jest.fn().mockResolvedValue([[song_1], 1]);
+      const mockQueryResult = { result: song_list, total: song_list.length };
+
+      jest
+        .spyOn(SongQueries, 'findAllUserSongs')
+        .mockResolvedValue(mockQueryResult);
       const result = await songService.findAllUserSongs(
         create_song_dto.user_id,
         create_song_dto.roles,
         {},
       );
       expect(result).toBeDefined();
-      expect(songRepository.findAndCount).toHaveBeenCalled();
+      expect(SongQueries.findAllUserSongs).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.any(Number),
+        expect.any(Number),
+      );
     });
   });
 

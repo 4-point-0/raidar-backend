@@ -93,8 +93,10 @@ export class AlbumService {
       const take = query.take || 10;
       const skip = query.skip || 0;
 
-      const [result, total] = await this.albumRepository.findAndCount(
-        findAllAlbumsQuery(take, skip),
+      const { result, total } = await findAllAlbumsQuery(
+        this.albumRepository,
+        take,
+        skip,
       );
 
       return new ServiceResult<PaginatedDto<AlbumDto>>(
@@ -120,8 +122,11 @@ export class AlbumService {
       const take = query.take || 10;
       const skip = query.skip || 0;
 
-      const [result, total] = await this.albumRepository.findAndCount(
-        findAllArtistAlbumsQuery(take, skip, creatorId),
+      const { result, total } = await findAllArtistAlbumsQuery(
+        this.albumRepository,
+        take,
+        skip,
+        creatorId,
       );
 
       return new ServiceResult<PaginatedDto<AlbumDto>>(
