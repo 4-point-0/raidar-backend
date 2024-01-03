@@ -22,6 +22,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MarketplaceModule } from '../marketplace/marketplace.module';
 import { ContractModule } from '../contract/contract.module';
 import { StripeModule } from '../stripe/stripe.module';
+import { NearProviderModule } from '../near-provider/near-provider.module';
 
 dotenv.config({
   path: existsSync(`.env.${process.env.MODE}`)
@@ -50,6 +51,7 @@ dotenv.config({
     MarketplaceModule,
     ContractModule,
     StripeModule,
+    NearProviderModule,
   ],
   controllers: [AppController],
   providers: [

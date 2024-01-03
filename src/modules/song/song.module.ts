@@ -11,6 +11,7 @@ import { EmailService } from '../email/email.service';
 import { HttpModule } from '@nestjs/axios';
 import { CoingeckoModule } from '../coingecko/coingecko.module';
 import { StripeService } from '../stripe/stripe.service';
+import { NearProviderService } from '../near-provider/near-provider.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { StripeService } from '../stripe/stripe.service';
     TypeOrmModule.forFeature([Song, File, Album, User, Licence]),
     CoingeckoModule,
   ],
-  providers: [SongService, EmailService, StripeService],
+  providers: [SongService, EmailService, StripeService, NearProviderService],
   controllers: [SongController],
 })
 export class SongModule {}
