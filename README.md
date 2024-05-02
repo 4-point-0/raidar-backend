@@ -17,7 +17,42 @@ Install the latest version of Postgre.
 
 Copy `env.example` to the `.env` and populate it with proper values.
 
-Create new app on google console to populate `GOOGLE_CLIENT_ID, GOOGLE_SECRET, GOOGLE_CALLBACK_URL`
+- Create new project on Google Console, go to API's & Services -> Credentials -> Create credentials -> OAuth Client ID and populate values from secret to `GOOGLE_CLIENT_ID, GOOGLE_SECRET`
+
+When you are in Credentials page:
+
+- add URIs to `Authorized JavaScript origins` with backend api url for example `api.raidar.xyz` and frontend app `app.raidar.xyz`
+- add URIs to `Authorized redirect URIs` constructed like this `{URL}/api/auth/callback/google` for example `https://app.raidar.xyz/api/auth/callback/google` for callback and redirect url with `https://api.raidar.xyz/api/v1/google/redirect` for redirect
+
+Use OAuth consent screen to add test users so not everybody can use platform, when going to production use `PUBLISH APP` if you want everybody has access
+
+- Create AWS account on https://aws.amazon.com/ and create S3 bucket to store images, populate `AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_BUCKET_NAME, AWS_REGION`
+
+- Go to `https://sendgrid.com/` and create account, go to Settings -> API keys -> Create API key and populate `SENDGRID_API_KEY`, go to Sender Authenticaion and verify Single Sender, use that email to popluate `SENDGRID_EMAIL`
+
+- `MODE` - populate with `dev, production, test`
+- `PORT` - this is used for server port, usually `3001`
+- `DATABASE_HOST` - database URL
+- `DATABASE_PORT` - database PORT, usually 5432
+- `DATABASE_NAME` - database name
+- `DATABASE_USER` - database user
+- `DATABASE_PASSWORD` - database pass
+- `GOOGLE_CLIENT_ID`- CLIENT ID from google console app
+- `GOOGLE_SECRET` - secret from Google secret
+- `GOOGLE_CALLBACK_URL` - callback for google OAuth Client, for example `https://api.raidar.xyz/api/v1/google/redirect`
+- `JWT_SECRET` - secret phrase
+- `JWT_EXPIRES_IN` - usually `7d`
+- `AWS_ACCESS_KEY` - aws S3 access key
+- `AWS_SECRET_KEY` - aws S3 secret key
+- `AWS_BUCKET_NAME` - aws S3 bucket name
+- `AWS_REGION` - aws S3 region
+- `SENDGRID_API_KEY` - sendgrid api key
+- `SENDGRID_EMAIL` - verified email on SENDGRID that will be used for sending emails, example `info@berklee.edu`
+- `EMAIL_DOMAINS` - this is used for authentication of users so only emails with certain domain can use app, put here `berklee.edu`
+- `NEAR_NETWORK_ID`- mainnet or testnet
+- `NEAR_NFT_CONTRACT_ACCOUNT_ID` - NFT contract id
+- `NEAR_MASTER_ACCOUNT_ID` - nft contract account id
+- `NEAR_MASTER_ACCOUNT_PRIVATE_KEY` - private key
 
 Project also works with multi-environment configurations, so also `.env.dev`,`.env.staging` and `.env.production` files are supported.
 
@@ -62,7 +97,6 @@ In config folder there is `configuraton.ts` which is used to load env variables 
 - `google` - is defining all variables for google app
 - `aws` - is defining all variables for aws server
 - `sendgrid` - is defining all variables for sendgrid email provider
-- `algolia` - is defining all variables for algolia search app
 
 There is also `valdiation.ts` file which is used for validating env variables.
 
@@ -99,15 +133,19 @@ $ yarn install
 ## Launch
 
 ```bash
-# development
-$ yarn start
-
-# watch mode
+# development environment
 $ yarn start:dev
 
+# debug environment
+$ yarn start:debug
+
 # production mode
-$ yarn start:prod
+$ yarn start
 ```
+
+## Deployment
+
+For production you have to run first `yarn build` and than `yarn start`
 
 ## Test
 
@@ -122,11 +160,13 @@ $ yarn test:e2e
 $ yarn test:cov
 ```
 
-### Typeorm
+### Database typeorm scripts
+
+We use TypeOrm to maintain database(https://typeorm.io/)
 
 - use script `migration:generate` to generate new migration, just change name at the end of script for example `src/migrations/user-entity`
 - use script `migration:create` to create empty migration, just change name at the end of script for example `src/migrations/file-entity`
-- use script `migration:run` to apply current model changes in database
+- use script `migration:run` to apply current model changes in database or to setup database
 - use script `migration:revert` to revert last db changes
 
 Other sulution is to run command in cli directly.
@@ -134,6 +174,8 @@ Other sulution is to run command in cli directly.
 ### Postgre
 
 We use `uuid` type in our database if your db isn't natively supporting it install `uuid-ossp` with query `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+## Aws bucket
 
 ## Specification
 
