@@ -18,11 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "typeorm-ts-node-esm",
-    "migration:generate": "yarn build && MODE=dev yarn typeorm migration:generate -d src/common/config/db/orm.config.ts src/migrations/song-token_contract_id",
-    "migration:create": "yarn build && MODE=dev yarn typeorm migration:create src/migrations/admin-role",
-    "migration:run": "yarn build && MODE=dev yarn typeorm migration:run -d src/common/config/db/orm.config.ts",
-    "migration:revert": "yarn build && MODE=dev yarn typeorm -- migration:revert -d src/common/config/db/orm.config.ts"
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:generate": "MODE=dev npm run typeorm -- migration:generate -d src/common/config/db/orm.config.ts src/migrations/song-token_contract_id",
+    "migration:create": "MODE=dev npm run typeorm -- migration:create src/migrations/admin-role",
+    "migration:run": "MODE=dev npm run typeorm -- migration:run -d src/common/config/db/orm.config.ts",
+    "migration:revert": "MODE=dev npm run typeorm -- migration:revert -d src/common/config/db/orm.config.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.0",
@@ -40,7 +40,7 @@
     "@types/passport-google-oauth20": "^2.0.11",
     "@types/uuid": "^9.0.2",
     "aws-sdk": "^2.1413.0",
-    "axios": "^1.4.0",
+    "axios": "^1.7.5",
     "bn.js": "^5.2.1",
     "borsh": "^0.7.0",
     "cache-manager": "^5.2.3",
@@ -84,8 +84,8 @@
     "supertest": "^6.1.3",
     "ts-jest": "29.0.3",
     "ts-loader": "^9.2.3",
-    "ts-node": "^10.0.0",
-    "tsconfig-paths": "4.1.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^4.7.4"
   },
   "jest": {
