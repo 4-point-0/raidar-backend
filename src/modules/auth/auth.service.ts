@@ -19,6 +19,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly allowedDomains: string[];
 
   constructor(
     @InjectRepository(User)
@@ -26,7 +27,12 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly googleAuthService: GoogleOAuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.allowedDomains = this.configService
+      .get('email_domains')
+      .split(',')
+      .map((domain) => domain.trim());
+  }
 
   generateJwt(payload) {
     return this.jwtService.sign(payload);
@@ -95,19 +101,21 @@ export class AuthService {
     user: GoogleUserDto,
   ): Promise<ServiceResult<JwtTokenDto>> {
     try {
-      const userRole: Role = this.configService
-        .get('email_domains')
-        .split(',')
-        .includes(user.email.split('@')[1])
-        ? Role.Artist
-        : Role.User;
+      const userDomain = user.email.split('@')[1];
+
+      if (!this.allowedDomains.includes(userDomain)) {
+        return new Forbidden<JwtTokenDto>(
+          `Registration not allowed for this email domain`,
+        );
+      }
+
       const newUser = this.userRepository.create({
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
         provider: user.provider,
         provider_id: user.provider_id,
-        roles: [userRole],
+        roles: [Role.User, Role.Artist],
       });
       await this.userRepository.save(newUser);
 

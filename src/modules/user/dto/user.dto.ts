@@ -17,7 +17,7 @@ export class UserDto {
 
   @ApiProperty({
     enum: [Role.User, Role.Artist],
-    default: Role.User,
+    default: [Role.User, Role.Artist],
   })
   roles: Role[];
 
