@@ -117,4 +117,46 @@ export class NearProviderService {
 
     return false;
   }
+
+  async createAccount(accountId: string): Promise<boolean> {
+    try {
+      const keyPair = nearAPI.KeyPair.fromRandom('ed25519');
+      await this.keyStore.setKey(this.config.networkId, accountId, keyPair);
+
+      const account = await this.masterAccount.createAccount(
+        accountId,
+        keyPair.getPublicKey(),
+        new BN(nearAPI.utils.format.parseNearAmount('0.1')),
+      );
+
+      return !!account;
+    } catch (error) {
+      this.logger.error('Error creating NEAR account: ', error);
+      return false;
+    }
+  }
+
+  async fundWithNear(accountId: string, nearAmount = '0.02'): Promise<boolean> {
+    try {
+      await this.masterAccount.sendMoney(
+        accountId,
+        nearAPI.utils.format.parseNearAmount(nearAmount) as any,
+      );
+      return true;
+    } catch (error) {
+      this.logger.error('Error sending money: ', error);
+      return false;
+    }
+  }
+
+  async doesAccountNeedToBeFunded(accountId: string): Promise<boolean> {
+    try {
+      const account = await this.near.account(accountId);
+      const accountState = await account.state();
+      return accountState.amount === '0';
+    } catch (error) {
+      this.logger.error('Error getting account state: ', error);
+      return true;
+    }
+  }
 }
