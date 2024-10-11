@@ -113,28 +113,28 @@ export class AuthService {
       });
       await this.userRepository.save(newUser);
 
-      // Create NEAR account
-      const nearAccountId = `${newUser.id}.${this.configService.get(
-        'near.accountSuffix',
-      )}`;
-      const accountCreated = await this.nearProviderService.createAccount(
-        nearAccountId,
-      );
+      // // Create NEAR account
+      // const nearAccountId = `${newUser.id}.${this.configService.get(
+      //   'near.accountSuffix',
+      // )}`;
+      // const accountCreated = await this.nearProviderService.createAccount(
+      //   nearAccountId,
+      // );
 
-      if (accountCreated) {
-        // Check if the account needs funding
-        const needsFunding =
-          await this.nearProviderService.doesAccountNeedToBeFunded(
-            nearAccountId,
-          );
-        if (needsFunding) {
-          await this.nearProviderService.fundWithNear(nearAccountId);
-        }
+      // if (accountCreated) {
+      //   // Check if the account needs funding
+      //   const needsFunding =
+      //     await this.nearProviderService.doesAccountNeedToBeFunded(
+      //       nearAccountId,
+      //     );
+      //   if (needsFunding) {
+      //     await this.nearProviderService.fundWithNear(nearAccountId);
+      //   }
 
-        // Update user with NEAR account ID
-        newUser.wallet_address = nearAccountId;
-        await this.userRepository.save(newUser);
-      }
+      //   // Update user with NEAR account ID
+      //   newUser.wallet_address = nearAccountId;
+      //   await this.userRepository.save(newUser);
+      //}
 
       const dto = {
         token: this.generateJwt({

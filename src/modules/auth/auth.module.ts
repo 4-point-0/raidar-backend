@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from '../../helpers/strategies/google.strategy';
 import { JwtStrategy } from '../../helpers/strategies/jwt.strategy';
 import { GoogleOAuthService } from './google-auth.service';
+import { NearProviderService } from '../near-provider/near-provider.service';
 
 @Module({
   imports: [
@@ -20,7 +21,13 @@ import { GoogleOAuthService } from './google-auth.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, GoogleOAuthService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    GoogleOAuthService,
+    NearProviderService,
+  ],
   controllers: [GoogleController],
 })
 export class AuthModule {}
