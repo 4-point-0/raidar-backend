@@ -6,6 +6,7 @@ import { User } from '../user/user.entity';
 import { Repository } from 'typeorm';
 import { GoogleOAuthService } from './google-auth.service';
 import { Provider, Role } from '../../common/enums/enum';
+import { NearProviderService } from '../near-provider/near-provider.service';
 import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
@@ -74,6 +75,14 @@ describe('AuthService', () => {
 
               return null;
             }),
+          },
+        },
+        {
+          provide: NearProviderService,
+          useValue: {
+            createAccount: jest.fn(),
+            doesAccountNeedToBeFunded: jest.fn(),
+            fundWithNear: jest.fn(),
           },
         },
       ],
