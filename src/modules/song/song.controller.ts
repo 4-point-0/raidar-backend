@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -108,5 +109,19 @@ export class SongController {
       responseType: 'stream',
     });
     response.data.pipe(res);
+  }
+
+  @Delete(':id')
+  @Auth(Role.Artist)
+  @UseFilters(new HttpExceptionFilter())
+  @CommonApiResponse(SongDto)
+  async deleteSong(@Req() request: AuthRequest, @Param('id') id: string) {
+    return handle(
+      await this.songService.deleteSong(
+        id,
+        request.user.id,
+        request.user.roles,
+      ),
+    );
   }
 }

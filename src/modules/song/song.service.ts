@@ -335,4 +335,42 @@ export class SongService {
       return new ServerError<string>(`Can't get song media`);
     }
   }
+
+  async deleteSong(
+    id: string,
+    userId: string,
+    roles: Role[],
+  ): Promise<ServiceResult<SongDto>> {
+    try {
+      if (!roles.includes(Role.Artist)) {
+        return new BadRequest<SongDto>(
+          `You don't have permission for this operation!`,
+        );
+      }
+
+      const song = await this.songRepository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+
+      if (!song) {
+        return new NotFound<SongDto>(`Song not found!`);
+      }
+
+      if (song.user.id !== userId) {
+        return new Forbidden<SongDto>(`You can only delete your own songs!`);
+      }
+
+      // Delete the Stripe price if it exists
+      if (song.price_id) {
+        await this.stripeService.archivePrice(song.price_id);
+      }
+
+      await this.songRepository.remove(song);
+      return new ServiceResult<SongDto>(SongDto.fromEntity(song));
+    } catch (error) {
+      this.logger.error('SongService - deleteSong', error);
+      return new ServerError<SongDto>(`Can't delete song`);
+    }
+  }
 }

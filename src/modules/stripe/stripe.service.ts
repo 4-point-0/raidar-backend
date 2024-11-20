@@ -221,4 +221,15 @@ export class StripeService {
       return new ServerError<boolean>(`Checkout session completed error`);
     }
   }
+
+  async archivePrice(priceId: string): Promise<void> {
+    try {
+      await this.stripe.prices.update(priceId, {
+        active: false,
+      });
+    } catch (error) {
+      this.logger.error('StripeService - archivePrice', error);
+      throw new Error('Failed to archive Stripe price');
+    }
+  }
 }
